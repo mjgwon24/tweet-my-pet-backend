@@ -48,6 +48,29 @@ public class UserService {
     }
 
     /**
+     * 로그인
+     */
+    public boolean login(String loginId, String password) {
+        // 아이디 존재 여부 확인
+        if (!usersRepository.existsByLoginId(loginId)) {
+            log.error("로그인 실패: 존재하지 않는 아이디");
+            return false;
+        }
+
+        // 비밀번호 일치 여부 확인
+        Users user = usersRepository.findByLoginId(loginId);
+        if (!user.getPassword().equals(password)) {
+            log.error("로그인 실패: 비밀번호 불일치");
+            return false;
+        }
+
+        // 로그인 성공시 세션 저장
+        // ...
+        log.info("로그인 성공");
+        return true;
+    }
+
+    /**
      * 전화번호 존재여부 확인
      */
     public void existsByPhoneNumber(String phoneNumber) {

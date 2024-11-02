@@ -12,4 +12,7 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
     // 전화번호 중복 체크
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM Users u WHERE u.phoneNumber = :phoneNumber")
     boolean existsByPhoneNumber(String phoneNumber);
+
+    // 아이디로 사용자 조회
+    Users findByLoginId(String loginId);
 }

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tweet_my_pet.tweet_my_pet_backend.dto.AuthCodeVerificationRequestDto;
+import tweet_my_pet.tweet_my_pet_backend.dto.LoginRequest;
 import tweet_my_pet.tweet_my_pet_backend.dto.SignupRequestDto;
 import tweet_my_pet.tweet_my_pet_backend.entity.Users;
 import tweet_my_pet.tweet_my_pet_backend.exception.DuplicateResourceException;
@@ -50,6 +51,28 @@ public class UserRestController {
         } catch (Exception e) {
             log.error("회원가입 실패: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * 로그인 api
+     * @param loginRequest
+     */
+    @Tag(name = "auth", description = "로그인, 회원가입")
+    @Operation(summary = "로그인")
+    @Parameter(name = "loginId", description = "아이디", required = true)
+    @Parameter(name = "password", description = "비밀번호", required = true)
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            if (userService.login(loginRequest.getLoginId(), loginRequest.getPassword())) {
+                return new ResponseEntity<>("로그인 성공", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("로그인 실패", HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception e) {
+            log.error("로그인 실패: {}", e.getMessage());
+            return new ResponseEntity<>("로그인 실패", HttpStatus.BAD_REQUEST);
         }
     }
 
