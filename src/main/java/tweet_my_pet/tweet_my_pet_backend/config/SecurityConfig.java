@@ -48,6 +48,6 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         // /api/public/**, /swagger-ui 경로는 모두 허용
-        return web -> web.ignoring().requestMatchers("api/auth/**", "/api/public/**", "/swagger-ui/**");
+        return web -> web.ignoring().requestMatchers("/api/auth/**", "/api/public/**", "/swagger-ui/**");
     }
 }
