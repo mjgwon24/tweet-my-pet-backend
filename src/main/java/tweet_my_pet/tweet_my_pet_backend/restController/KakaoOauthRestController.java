@@ -52,6 +52,13 @@ public class KakaoOauthRestController {
             // 사용자 정보 가져오기
             KakaoUserInfo userInfo = kakaoService.getUserInfo(accessToken);
 
+
+
+
+
+
+
+
             // 사용자 정보를 확인하고 로그 출력
             if (userInfo != null && userInfo.getKakaoAccount() != null) {
                 logger.info("Kakao ID: {}", userInfo.getId());
