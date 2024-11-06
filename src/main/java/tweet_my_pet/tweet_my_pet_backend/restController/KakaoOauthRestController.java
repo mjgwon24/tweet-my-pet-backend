@@ -27,15 +27,11 @@ public class KakaoOauthRestController {
 
     @Value("${kakao.redirect_uri}")
     private String redirectUri;
-
-    // 리디렉션 URL 상수
-    private static final String REDIRECT_URI = "http://10.10.3.89:8081/auth/kakao/callback";
-
     // 카카오 로그인 링크 반환
     @GetMapping("/login")
     public ResponseEntity<String> loginPage() {
         String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id="
-                + clientId + "&redirect_uri=" + REDIRECT_URI;
+                + clientId + "&redirect_uri=" + redirectUri;
         logger.info("login 호출됨");
         return ResponseEntity.ok(location);
     }
@@ -44,7 +40,7 @@ public class KakaoOauthRestController {
     @GetMapping("/callback")
     public ResponseEntity<Void> callback(@RequestParam("code") String code) {
         try {
-            logger.info("Kakao OAuth callback 호출됨, code: {}", code); // 추가된 로그
+            logger.info("Kakao OAuth callback 호출됨, code: {}", code);
 
             // Access Token 가져오기
             String accessToken = kakaoService.getAccessToken(code);
@@ -67,7 +63,7 @@ public class KakaoOauthRestController {
 
             // 리디렉션 설정
             HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(URI.create(REDIRECT_URI));
+            headers.setLocation(URI.create(redirectUri));
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
         } catch (Exception e) {
             logger.error("Error during Kakao OAuth callback: {}", e.getMessage(), e);
@@ -85,5 +81,4 @@ public class KakaoOauthRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 }
