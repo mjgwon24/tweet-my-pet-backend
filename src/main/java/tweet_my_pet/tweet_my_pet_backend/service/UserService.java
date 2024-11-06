@@ -2,6 +2,7 @@ package tweet_my_pet.tweet_my_pet_backend.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tweet_my_pet.tweet_my_pet_backend.dto.SignupRequestDto;
@@ -24,6 +25,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class UserService {
     private final UsersRepository usersRepository;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 회원가입
@@ -36,10 +38,13 @@ public class UserService {
             throw new DuplicateResourceException("이미 존재하는 아이디입니다.");
         }
 
-        // 회원가입 요청 정보로 사용자 생성
+        // 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(signupRequestDto.getPassword());
+
+        // 회원가입 요청 정보로 사용자 생성 (비밀번호 암호화)
         Users user = Users.builder()
                 .loginId(signupRequestDto.getLoginId())
-                .password(signupRequestDto.getPassword())
+                .password(encodedPassword)
                 .name(signupRequestDto.getName())
                 .phoneNumber(signupRequestDto.getPhoneNumber())
                 .build();
@@ -57,9 +62,10 @@ public class UserService {
             return false;
         }
 
-        // 비밀번호 일치 여부 확인
+        // 비밀번호 일치 여부 확인 (암호화된 비밀번호 비교)
         Users user = usersRepository.findByLoginId(loginId);
-        if (!user.getPassword().equals(password)) {
+        boolean matches = passwordEncoder.matches(password, user.getPassword());
+        if (!matches) {
             log.error("로그인 실패: 비밀번호 불일치");
             return false;
         }
