@@ -1,5 +1,7 @@
 package tweet_my_pet.tweet_my_pet_backend.service;
 
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,7 +11,9 @@ import tweet_my_pet.tweet_my_pet_backend.dto.SignupRequestDto;
 import tweet_my_pet.tweet_my_pet_backend.entity.Users;
 import tweet_my_pet.tweet_my_pet_backend.exception.DuplicateResourceException;
 import tweet_my_pet.tweet_my_pet_backend.repository.UsersRepository;
+import tweet_my_pet.tweet_my_pet_backend.security.JwtTokenProvider;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -26,6 +30,7 @@ import java.util.Random;
 public class UserService {
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * 회원가입
@@ -70,8 +75,6 @@ public class UserService {
             return false;
         }
 
-        // 로그인 성공시 세션 저장
-        // ...
         log.info("로그인 성공");
         return true;
     }
