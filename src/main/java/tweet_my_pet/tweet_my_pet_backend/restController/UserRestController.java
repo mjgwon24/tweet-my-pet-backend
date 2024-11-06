@@ -16,6 +16,7 @@ import tweet_my_pet.tweet_my_pet_backend.dto.LoginRequest;
 import tweet_my_pet.tweet_my_pet_backend.dto.SignupRequestDto;
 import tweet_my_pet.tweet_my_pet_backend.entity.Users;
 import tweet_my_pet.tweet_my_pet_backend.exception.DuplicateResourceException;
+import tweet_my_pet.tweet_my_pet_backend.security.JwtTokenProvider;
 import tweet_my_pet.tweet_my_pet_backend.service.UserService;
 
 /**
@@ -32,6 +33,7 @@ import tweet_my_pet.tweet_my_pet_backend.service.UserService;
 public class UserRestController {
 
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * 회원가입 요청 api
@@ -66,7 +68,13 @@ public class UserRestController {
     public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             if (userService.login(loginRequest.getLoginId(), loginRequest.getPassword())) {
-                return new ResponseEntity<>("로그인 성공", HttpStatus.OK);
+                // 로그인 성공시 토큰 생성 및 반환
+                String token = jwtTokenProvider.generateToken(loginRequest.getLoginId());
+
+                if (token == null) {
+                    return new ResponseEntity<>("토큰 생성 실패", HttpStatus.BAD_REQUEST);
+                }
+                return new ResponseEntity<>(token, HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("로그인 실패", HttpStatus.BAD_REQUEST);
             }
