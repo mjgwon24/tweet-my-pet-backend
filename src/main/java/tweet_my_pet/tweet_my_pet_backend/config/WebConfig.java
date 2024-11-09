@@ -23,8 +23,7 @@ public class WebConfig {
                 registry.addMapping("/**")
                         .allowedMethods("*")
                         .allowedOrigins(originUrl, crossOriginUrl)
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .allowedHeaders("*");
             }
         };
     }

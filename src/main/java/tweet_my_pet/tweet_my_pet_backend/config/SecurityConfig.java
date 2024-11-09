@@ -21,13 +21,15 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(Customizer.withDefaults()) // cors 기본적으로 허용
+        http
+                .cors(Customizer.withDefaults()) // 기본 CORS 설정 허용
+                .csrf(csrf -> csrf.disable()) // 최신 방식으로 CSRF 보호 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // /api/auth/** 경로는 모두 허용
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/**", "/auth/kakao/**").permitAll() // 특정 엔드포인트 허용
+                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션을 사용하지 않음
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션 사용하지 않음
                 );
 //                .addFilter(new JwtAuthenticationFilter(authenticationManager(http.getSharedObject(AuthenticationConfiguration.class))))
 //                .addFilter(new JwtAuthorizationFilter(authenticationManager(http.getSharedObject(AuthenticationConfiguration.class))));
@@ -47,7 +49,6 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        // /api/public/**, /swagger-ui 경로는 모두 허용
-        return web -> web.ignoring().requestMatchers("/api/auth/**", "/api/public/**", "/swagger-ui/**");
+        return web -> web.ignoring().requestMatchers("/api/auth/**", "/auth/kakao/**", "/api/public/**", "/swagger-ui/**");
     }
 }
