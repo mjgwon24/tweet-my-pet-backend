@@ -15,7 +15,5 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 
     // 아이디로 사용자 조회
     Users findByLoginId(String loginId);
-
     Users findByKakaoId(String kakaoId);
 }
-

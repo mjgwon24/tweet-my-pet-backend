@@ -7,13 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor
 public class Users {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
 
@@ -29,16 +26,11 @@ public class Users {
 
     private String profileImageUrl;
 
-    // 일반 사용자 로그인 필드
-    @Column(unique = true, nullable = true)
-    private String loginId; // 일반 로그인 ID (카카오 사용자는 null일 수 있음)
-
-    private String password; // 비밀번호 (카카오 로그인 사용자에게는 필요 없음)
-
+    @Column(unique = true)
+    private String loginId;
+    private String password;
     private String name;
-
-    @Column(unique = true, nullable = true)
-    private String phoneNumber; // 전화번호 (옵션 필드)
+    private String phoneNumber;
 
     @Builder
     public Users(String loginId, String password, String name, String phoneNumber,
@@ -53,5 +45,3 @@ public class Users {
         this.profileImageUrl = profileImageUrl;
     }
 }
-
-
