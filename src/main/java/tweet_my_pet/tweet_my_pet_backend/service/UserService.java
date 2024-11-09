@@ -8,10 +8,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tweet_my_pet.tweet_my_pet_backend.dto.SignupRequestDto;
-import tweet_my_pet.tweet_my_pet_backend.entity.Users;
+import tweet_my_pet.tweet_my_pet_backend.entity.User;
 import tweet_my_pet.tweet_my_pet_backend.exception.DuplicateResourceException;
 import tweet_my_pet.tweet_my_pet_backend.repository.UsersRepository;
 import tweet_my_pet.tweet_my_pet_backend.security.JwtTokenProvider;
+
 
 import java.util.Base64;
 import java.util.HashMap;

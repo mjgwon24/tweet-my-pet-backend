@@ -14,7 +14,7 @@ import lombok.Setter;
 public class CompanyCategory {
     @Id
     @Column(name = "company_category_id", nullable = false)
-    private Integer id;
+    private Integer companyCategoryId;
 
     @Column(name = "company_category_name", nullable = false, length = 45)
     private String companyCategoryName;

@@ -11,7 +11,7 @@ import lombok.Setter;
 public class NaverApiUserLogin {
     @Id
     @Column(name = "naver_api_user_id", nullable = false)
-    private Long id;
+    private Long naverApiUserId;
 
     @Column(name = "naver_api_user_name", nullable = false, length = 45)
     private String naverApiUserName;

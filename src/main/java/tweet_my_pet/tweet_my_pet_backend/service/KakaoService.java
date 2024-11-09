@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import tweet_my_pet.tweet_my_pet_backend.dto.KakaoUserInfo;
 import tweet_my_pet.tweet_my_pet_backend.dto.KakaoTokenResponse;
-import tweet_my_pet.tweet_my_pet_backend.entity.Users;
+import tweet_my_pet.tweet_my_pet_backend.entity.User;
 import tweet_my_pet.tweet_my_pet_backend.repository.UsersRepository;
 
 @Slf4j

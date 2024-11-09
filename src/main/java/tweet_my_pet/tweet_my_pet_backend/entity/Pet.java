@@ -14,7 +14,7 @@ import lombok.Setter;
 public class Pet {
     @Id
     @Column(name = "pet_id", nullable = false)
-    private Long id;
+    private Long petId;
 
     @Column(name = "pet_name", nullable = false, length = 45)
     private String petName;

@@ -12,7 +12,7 @@ import lombok.Setter;
 public class User {
     @Id
     @Column(name = "user_id", nullable = false)
-    private Long id;
+    private Long userId;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "pet_id", nullable = false)

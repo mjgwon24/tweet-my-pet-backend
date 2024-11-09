@@ -11,7 +11,7 @@ import lombok.Setter;
 public class CompanyIntroduceVideo {
     @Id
     @Column(name = "company_introduce_video_id", nullable = false)
-    private Long id;
+    private Long companyIntroduceVideoId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "company_introduce_id", nullable = false)
