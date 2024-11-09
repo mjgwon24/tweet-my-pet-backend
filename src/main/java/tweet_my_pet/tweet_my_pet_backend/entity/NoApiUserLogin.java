@@ -11,7 +11,7 @@ import lombok.Setter;
 public class NoApiUserLogin {
     @Id
     @Column(name = "no_api_login_user_id", nullable = false)
-    private Long id;
+    private Long loginId;
 
     @Column(name = "no_api_login_user_login_id", nullable = false, length = 45)
     private String noApiLoginUserLoginId;

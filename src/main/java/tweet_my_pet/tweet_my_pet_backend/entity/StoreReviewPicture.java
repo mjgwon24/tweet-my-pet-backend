@@ -11,7 +11,7 @@ import lombok.Setter;
 public class StoreReviewPicture {
     @Id
     @Column(name = "store_review_picture_id", nullable = false)
-    private Long id;
+    private Long storeReviewPiectureId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "store_review_id", nullable = false)

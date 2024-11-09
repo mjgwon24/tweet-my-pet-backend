@@ -10,8 +10,8 @@ import lombok.Setter;
 @Table(name = "google_api_user_login", schema = "tweet_my_pet")
 public class GoogleApiUserLogin {
     @Id
-    @Column(name = "google_api_id", nullable = false)
-    private Long id;
+    @Column(name = "google_api_user_id", nullable = false)
+    private Long googleApiUserId;
 
     @Column(name = "google_api_user_name", length = 45)
     private String googleApiUserName;

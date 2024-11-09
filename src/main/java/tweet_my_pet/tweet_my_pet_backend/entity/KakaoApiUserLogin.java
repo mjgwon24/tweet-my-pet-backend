@@ -11,7 +11,7 @@ import lombok.Setter;
 public class KakaoApiUserLogin {
     @Id
     @Column(name = "kakao_api_user_id", nullable = false)
-    private Long id;
+    private Long kakakApiUserId;
 
     @Column(name = "kakao_api_user_name", nullable = false, length = 45)
     private String kakaoApiUserName;
