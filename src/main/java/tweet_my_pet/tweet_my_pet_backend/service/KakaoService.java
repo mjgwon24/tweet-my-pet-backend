@@ -150,7 +150,6 @@ public class KakaoService {
             logger.info("User logged out successfully");
         } catch (Exception e) {
             logger.error("Error while logging out: {}", e.getMessage());
-            throw new RuntimeException("Error while logging out", e);
         }
     }
 
