@@ -45,7 +45,7 @@ public class UserRestController {
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignupRequestDto signupRequestDto, HttpServletRequest request) {
         try {
-            Users savedUser = userService.signUp(signupRequestDto);
+            User savedUser = userService.signUp(signupRequestDto);
             return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
         } catch (DuplicateResourceException e) {
             log.error("Failed to sign up: {}", e.getMessage());
