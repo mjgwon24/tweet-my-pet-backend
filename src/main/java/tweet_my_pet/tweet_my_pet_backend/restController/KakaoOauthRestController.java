@@ -1,84 +1,70 @@
 package tweet_my_pet.tweet_my_pet_backend.restController;
 
-import org.springframework.web.bind.annotation.*;
-import tweet_my_pet.tweet_my_pet_backend.service.KakaoService;
-import tweet_my_pet.tweet_my_pet_backend.dto.KakaoUserInfo;
-import org.springframework.beans.factory.annotation.Value;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
+import tweet_my_pet.tweet_my_pet_backend.dto.KakaoUserInfo;
+import tweet_my_pet.tweet_my_pet_backend.service.KakaoService;
 
-import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
-@RequiredArgsConstructor
+@Slf4j
 @RestController
 @RequestMapping("/auth/kakao")
-@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class KakaoOauthRestController {
 
-    private static final Logger logger = LoggerFactory.getLogger(KakaoOauthRestController.class);
     private final KakaoService kakaoService;
 
-    @Value("${kakao.client_id}")
-    private String clientId;
+    // 인증 코드로 액세스 토큰과 사용자 정보 조회 및 저장
+    @PostMapping("/callback")
+    public ResponseEntity<Map<String, String>> kakaoCallback(@RequestBody Map<String, String> requestBody) {
+        String code = requestBody.get("code");
+        if (code == null || code.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Authorization code is missing"));
+        }
 
-    @Value("${kakao.redirect_uri}")
-    private String redirectUri;
-    // 카카오 로그인 링크 반환
-    @GetMapping("/login")
-    public ResponseEntity<String> loginPage() {
-        String location = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id="
-                + clientId + "&redirect_uri=" + redirectUri;
-        logger.info("login 호출됨");
-        return ResponseEntity.ok(location);
-    }
-
-    // 카카오 콜백 처리 및 사용자 정보 저장
-    @GetMapping("/callback")
-    public ResponseEntity<Void> callback(@RequestParam("code") String code) {
         try {
-            logger.info("Kakao OAuth callback 호출됨, code: {}", code);
-
-            // Access Token 가져오기
+            // Access Token 획득
             String accessToken = kakaoService.getAccessToken(code);
-
-            // 사용자 정보 가져오기
-            KakaoUserInfo userInfo = kakaoService.getUserInfo(accessToken);
-
-            // 사용자 정보를 확인하고 로그 출력
-            if (userInfo != null && userInfo.getKakaoAccount() != null) {
-                logger.info("Kakao ID: {}", userInfo.getId());
-                logger.info("Kakao Nickname: {}", userInfo.getKakaoAccount().getProfile().getNickname());
-                logger.info("Kakao Email: {}", userInfo.getKakaoAccount().getEmail());
-
-                // 사용자 정보를 DB에 저장
-                kakaoService.saveOrUpdateUser(userInfo);
-            } else {
-                logger.error("User info is null or incomplete.");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            if (accessToken == null) {
+                return ResponseEntity.status(500).body(Map.of("error", "Failed to retrieve access token"));
             }
 
-            // 리디렉션 설정
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(URI.create(redirectUri));
-            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+            // 사용자 정보 조회 및 저장
+            KakaoUserInfo userInfo = kakaoService.getUserInfo(accessToken);
+            if (userInfo == null) {
+                return ResponseEntity.status(500).body(Map.of("error", "Failed to retrieve user information"));
+            }
+
+            // 액세스 토큰을 클라이언트에 반환
+            Map<String, String> response = new HashMap<>();
+            response.put("accessToken", accessToken);
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
-            logger.error("Error during Kakao OAuth callback: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("Error in kakaoCallback: {}", e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("error", "Internal server error"));
         }
     }
 
+    // 로그아웃 엔드포인트
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestParam("accessToken") String accessToken) {
+    public ResponseEntity<Map<String, String>> kakaoLogout(@RequestBody Map<String, String> requestBody) {
+        String accessToken = requestBody.get("accessToken");
+        if (accessToken == null || accessToken.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Access token is missing"));
+        }
+
         try {
-            kakaoService.logout(accessToken); // KakaoService의 로그아웃 메서드 호출
-            return ResponseEntity.ok().build();
+            kakaoService.logout(accessToken);
+            return ResponseEntity.ok(Map.of("message", "Logout successful"));
         } catch (Exception e) {
-            logger.error("Error during logout: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("Error in kakaoLogout: {}", e.getMessage());
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to logout"));
         }
     }
 }
