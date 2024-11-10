@@ -16,5 +16,5 @@ public interface UsersRepository extends JpaRepository<NoApiUserLogin, Long> {
 
     // 아이디로 사용자 조회
     NoApiUserLogin findByLoginId(String loginId);
-    NoApiUserLogin findByKakaoId(String phoneNumber);
+    NoApiUserLogin findByKakaoId(String userPhoneNumber);
 }
