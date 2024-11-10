@@ -100,6 +100,7 @@ public class KakaoService {
     // 사용자 정보를 DB에 저장하거나 업데이트하는 메서드
     @Transactional // 트랜잭션 처리 추가
     public void saveOrUpdateUser(KakaoUserInfo userInfo) {
+
         log.info("saveOrUpdateUser 메서드가 호출되었습니다.");
         try {
             String kakaoId = String.valueOf(userInfo.getId());
@@ -108,22 +109,17 @@ public class KakaoService {
             String profileImageUrl = userInfo.getKakaoAccount().getProfile().getProfileImageUrl();
 
             // 사용자 정보가 이미 존재하는지 확인
-            Users existingUser = usersRepository.findByKakaoId(kakaoId);
+            User existingUser = usersRepository.findByKakaoId(userId);
             if (existingUser == null) {
                 // 새 사용자 저장
-                Users newUser = Users.builder()
-                        .kakaoId(kakaoId)
-                        .email(email)
-                        .nickname(nickname)
-                        .profileImageUrl(profileImageUrl)
+                User newUser = User.builder()
+                        .userEmail(email)
                         .build();
                 usersRepository.save(newUser);
                 logger.info("새 사용자 저장: {}", email);
             } else {
                 // 기존 사용자 정보 업데이트
-                existingUser.setEmail(email);
-                existingUser.setNickname(nickname);
-                existingUser.setProfileImageUrl(profileImageUrl);
+                existingUser.setUserEmail(email);
                 usersRepository.save(existingUser);
                 logger.info("기존 사용자 업데이트: {}", email);
             }

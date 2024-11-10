@@ -12,6 +12,8 @@ import tweet_my_pet.tweet_my_pet_backend.entity.User;
 import tweet_my_pet.tweet_my_pet_backend.exception.DuplicateResourceException;
 import tweet_my_pet.tweet_my_pet_backend.repository.UsersRepository;
 import tweet_my_pet.tweet_my_pet_backend.security.JwtTokenProvider;
+import tweet_my_pet.tweet_my_pet_backend.entity.NoApiUserLogin;
+import tweet_my_pet.tweet_my_pet_backend.repository.NoApiUserLoginRepository;
 
 
 import java.util.Base64;
@@ -32,15 +34,16 @@ public class UserService {
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final NoApiUserLoginRepository noApiUserLoginRepository;
 
     /**
      * 회원가입
      * @param signupRequestDto
      */
     @Transactional
-    public Users signUp(SignupRequestDto signupRequestDto) {
+    public NoApiUserLogin signUp(SignupRequestDto signupRequestDto) {
         // 중복 아이디 체크
-        if (usersRepository.existsByLoginId(signupRequestDto.getLoginId())) {
+        if (noApiUserLoginRepository.existsByLoginId(signupRequestDto.getLoginId())) {
             throw new DuplicateResourceException("이미 존재하는 아이디입니다.");
         }
 
@@ -48,29 +51,27 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(signupRequestDto.getPassword());
 
         // 회원가입 요청 정보로 사용자 생성 (비밀번호 암호화)
-        Users user = Users.builder()
-                .loginId(signupRequestDto.getLoginId())
-                .password(encodedPassword)
-                .name(signupRequestDto.getName())
-                .phoneNumber(signupRequestDto.getPhoneNumber())
+        NoApiUserLogin user = NoApiUserLogin.builder()
+                .LoginId(signupRequestDto.getLoginId())
+                .Passwoed(encodedPassword)
                 .build();
 
-        return usersRepository.save(user);
+        return noApiUserLoginRepository.save(user);
     }
 
     /**
      * 로그인
      */
-    public boolean login(String loginId, String password) {
+    public boolean login(String LoginId, String password) {
         // 아이디 존재 여부 확인
-        if (!usersRepository.existsByLoginId(loginId)) {
+        if (!noApiUserLoginRepository.existsByLoginId(LoginId)) {
             log.error("로그인 실패: 존재하지 않는 아이디");
             return false;
         }
 
         // 비밀번호 일치 여부 확인 (암호화된 비밀번호 비교)
-        Users user = usersRepository.findByLoginId(loginId);
-        boolean matches = passwordEncoder.matches(password, user.getPassword());
+        noApiUserLoginRepository noApiUserLogin = noApiUserLoginRepository.findByLoginId(LoginId);
+        boolean matches = passwordEncoder.matches(password, noApiUserLogin.getPassword());
         if (!matches) {
             log.error("로그인 실패: 비밀번호 불일치");
             return false;

@@ -4,10 +4,15 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "users", schema = "tweet_my_pet")
 public class User {
     @Id
@@ -24,4 +29,6 @@ public class User {
     @Column(name = "user_phone_number", nullable = false, length = 45)
     private String userPhoneNumber;
 
+    @Column(name = "user_email", nullable = false, length = 45)
+    private String userEmail;
 }
