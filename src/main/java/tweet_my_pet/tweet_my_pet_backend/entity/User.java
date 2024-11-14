@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -31,4 +32,15 @@ public class User {
 
     @Column(name = "user_email", nullable = false, length = 45)
     private String userEmail;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_gender", nullable = false)
+    private Gender gender;
+
+    public enum Gender {
+        남, 여
+    }
+
+    @Column(name = "user_birth", nullable = false)
+    private Date birth;
 }

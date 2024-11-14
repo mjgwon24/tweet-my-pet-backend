@@ -10,7 +10,7 @@ import lombok.Setter;
 @Table(name = "company_category_mapping", schema = "tweet_my_pet")
 public class CompanyCategoryMapping {
     @EmbeddedId
-    private CompanyCategoryMappingId id;
+    private CompanyCategoryMappingId companyCategoryMappingId;
 
     @MapsId("companyCategoryId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

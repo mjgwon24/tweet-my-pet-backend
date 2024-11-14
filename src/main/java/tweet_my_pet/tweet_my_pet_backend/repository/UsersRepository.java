@@ -3,7 +3,6 @@ package tweet_my_pet.tweet_my_pet_backend.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import tweet_my_pet.tweet_my_pet_backend.entity.User;
-import tweet_my_pet.tweet_my_pet_backend.entity.NoApiUserLogin;
 
 public interface UsersRepository extends JpaRepository<User, Long> {
     // 전화번호 중복 체크

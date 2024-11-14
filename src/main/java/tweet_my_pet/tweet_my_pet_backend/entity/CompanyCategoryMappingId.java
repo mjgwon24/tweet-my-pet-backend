@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 
+import java.math.BigInteger;
 import java.util.Objects;
 
 @Getter
@@ -15,7 +16,7 @@ import java.util.Objects;
 public class CompanyCategoryMappingId implements java.io.Serializable {
     private static final long serialVersionUID = -7479129836050331227L;
     @Column(name = "company_category_id", nullable = false)
-    private Integer companyCategoryId;
+    private Long companyCategoryId;
 
     @Column(name = "company_id", nullable = false)
     private Long companyId;

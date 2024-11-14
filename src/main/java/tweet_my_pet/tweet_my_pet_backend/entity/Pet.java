@@ -1,9 +1,6 @@
 package tweet_my_pet.tweet_my_pet_backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,16 +16,19 @@ public class Pet {
     @Column(name = "pet_name", nullable = false, length = 45)
     private String petName;
 
-/*
- TODO [Reverse Engineering] create field to map the 'pet_size' column
- Available actions: Define target Java type | Uncomment as is | Remove column mapping
+    @Enumerated(EnumType.STRING)
     @Column(name = "pet_size", columnDefinition = "pet_size_type not null")
-    private Object petSize;
-*/
-/*
- TODO [Reverse Engineering] create field to map the 'pet_gender' column
- Available actions: Define target Java type | Uncomment as is | Remove column mapping
+    private PetSize petSize;
+
+    public enum PetSize {
+        대, 중, 소
+    }
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "pet_gender", columnDefinition = "gender_type not null")
-    private Object petGender;
-*/
+    private Gender petGender;
+
+    public enum Gender {
+        암, 수
+    }
 }
