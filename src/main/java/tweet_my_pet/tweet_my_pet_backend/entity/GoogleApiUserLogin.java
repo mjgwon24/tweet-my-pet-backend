@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "google_api_user_login", schema = "tweet_my_pet")
+@Table(name = "google_api_user_login")
 public class GoogleApiUserLogin {
     @Id
     @Column(name = "google_api_user_id", nullable = false)

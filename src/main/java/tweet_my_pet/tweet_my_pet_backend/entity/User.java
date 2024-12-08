@@ -13,14 +13,15 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "users", schema = "tweet_my_pet")
+@Table(name = "users")
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "pet_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = true, cascade = CascadeType.ALL) // CascadeType.ALL 추가
+    @JoinColumn(name = "pet_id", nullable = true)
     private Pet pet;
 
     @Column(name = "user_name", nullable = false, length = 45)

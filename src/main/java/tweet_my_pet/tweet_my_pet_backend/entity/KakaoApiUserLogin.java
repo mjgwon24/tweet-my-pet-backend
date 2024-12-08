@@ -7,11 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "kakao_api_user_login", schema = "tweet_my_pet")
+@Table(name = "kakao_api_user_login")
 public class KakaoApiUserLogin {
     @Id
     @Column(name = "kakao_api_user_id", nullable = false)
-    private Long kakakApiUserId;
+    private Long kakaoApiUserId;
 
     @Column(name = "kakao_api_user_name", nullable = false, length = 45)
     private String kakaoApiUserName;
@@ -20,7 +20,7 @@ public class KakaoApiUserLogin {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "kakao_api_access_token", nullable = false, length = 45)
+    @Column(name = "kakao_api_access_token", nullable = false, length = 255)
     private String kakaoApiAccessToken;
 
     @Column(name = "kakao_api_refresh_token", nullable = false)

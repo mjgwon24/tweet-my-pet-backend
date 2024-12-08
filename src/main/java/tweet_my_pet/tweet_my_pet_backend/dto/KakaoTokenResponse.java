@@ -22,4 +22,7 @@ public class KakaoTokenResponse {
 
     @JsonProperty("scope")
     private String scope;
+
+    @JsonProperty("refresh_token_expires_in")
+    private Integer refreshTokenExpiresIn;
 }

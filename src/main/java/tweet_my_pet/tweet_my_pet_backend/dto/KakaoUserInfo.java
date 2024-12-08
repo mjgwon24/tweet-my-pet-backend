@@ -22,6 +22,9 @@ public class KakaoUserInfo {
         @JsonProperty("email")
         private String email;
 
+        @JsonProperty("phone_number")
+        private String phoneNumber;
+
         @Getter
         @NoArgsConstructor
         public static class Profile {

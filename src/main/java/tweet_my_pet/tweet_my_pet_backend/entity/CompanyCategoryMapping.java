@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "company_category_mapping", schema = "tweet_my_pet")
+@Table(name = "company_category_mapping")
 public class CompanyCategoryMapping {
     @EmbeddedId
     private CompanyCategoryMappingId id;

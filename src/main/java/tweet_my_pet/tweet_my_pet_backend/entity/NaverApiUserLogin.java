@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "naver_api_user_login", schema = "tweet_my_pet")
+@Table(name = "naver_api_user_login")
 public class NaverApiUserLogin {
     @Id
     @Column(name = "naver_api_user_id", nullable = false)
