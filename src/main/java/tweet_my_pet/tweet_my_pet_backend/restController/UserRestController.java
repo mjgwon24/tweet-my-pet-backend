@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import tweet_my_pet.tweet_my_pet_backend.dto.AuthCodeVerificationRequestDto;
 import tweet_my_pet.tweet_my_pet_backend.dto.LoginRequest;
 import tweet_my_pet.tweet_my_pet_backend.dto.SignupRequestDto;
+import tweet_my_pet.tweet_my_pet_backend.entity.NoApiUserLogin;
 import tweet_my_pet.tweet_my_pet_backend.entity.User;
 import tweet_my_pet.tweet_my_pet_backend.exception.DuplicateResourceException;
 import tweet_my_pet.tweet_my_pet_backend.security.JwtTokenProvider;
@@ -45,7 +46,7 @@ public class UserRestController {
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignupRequestDto signupRequestDto, HttpServletRequest request) {
         try {
-            User savedUser = userService.signUp(signupRequestDto);
+            NoApiUserLogin savedUser = userService.signUp(signupRequestDto);
             return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
         } catch (DuplicateResourceException e) {
             log.error("Failed to sign up: {}", e.getMessage());

@@ -52,8 +52,8 @@ public class UserService {
 
         // 회원가입 요청 정보로 사용자 생성 (비밀번호 암호화)
         NoApiUserLogin user = NoApiUserLogin.builder()
-                .LoginId(signupRequestDto.getLoginId())
-                .Passwoed(encodedPassword)
+                .loginId(signupRequestDto.getLoginId())
+                .password(encodedPassword)
                 .build();
 
         return noApiUserLoginRepository.save(user);
@@ -70,7 +70,7 @@ public class UserService {
         }
 
         // 비밀번호 일치 여부 확인 (암호화된 비밀번호 비교)
-        noApiUserLoginRepository noApiUserLogin = noApiUserLoginRepository.findByLoginId(LoginId);
+        NoApiUserLogin noApiUserLogin = noApiUserLoginRepository.findByLoginId(LoginId);
         boolean matches = passwordEncoder.matches(password, noApiUserLogin.getPassword());
         if (!matches) {
             log.error("로그인 실패: 비밀번호 불일치");
