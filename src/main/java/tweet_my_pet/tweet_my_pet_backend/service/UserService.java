@@ -50,13 +50,23 @@ public class UserService {
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(signupRequestDto.getPassword());
 
-        // 회원가입 요청 정보로 사용자 생성 (비밀번호 암호화)
-        NoApiUserLogin user = NoApiUserLogin.builder()
-                .loginId(signupRequestDto.getLoginId())
-                .password(encodedPassword)
+        // 회원 정보 생성
+        User user = User.builder()
+                .userName(signupRequestDto.getName())
+                .userPhoneNumber(signupRequestDto.getPhoneNumber())
+                .userEmail(signupRequestDto.getEmail())
                 .build();
 
-        return noApiUserLoginRepository.save(user);
+        usersRepository.save(user);
+
+        // 회원가입 요청 정보로 사용자 생성 (비밀번호 암호화)
+        NoApiUserLogin noApiUserLogin = NoApiUserLogin.builder()
+                .loginId(signupRequestDto.getLoginId())
+                .password(encodedPassword)
+                .user(user)
+                .build();
+
+        return noApiUserLoginRepository.save(noApiUserLogin);
     }
 
     /**
