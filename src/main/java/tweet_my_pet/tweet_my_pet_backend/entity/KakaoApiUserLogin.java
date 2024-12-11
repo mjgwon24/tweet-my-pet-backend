@@ -10,6 +10,7 @@ import lombok.Setter;
 @Table(name = "kakao_api_user_login")
 public class KakaoApiUserLogin {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "kakao_api_user_id", nullable = false)
     private Long kakaoApiUserId;
 

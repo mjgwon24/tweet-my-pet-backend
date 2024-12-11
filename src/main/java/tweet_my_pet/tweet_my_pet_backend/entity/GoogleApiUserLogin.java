@@ -10,6 +10,7 @@ import lombok.Setter;
 @Table(name = "google_api_user_login")
 public class GoogleApiUserLogin {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "google_api_user_id", nullable = false)
     private Long googleApiUserId;
 

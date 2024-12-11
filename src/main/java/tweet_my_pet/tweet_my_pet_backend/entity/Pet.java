@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @Entity
@@ -29,7 +31,17 @@ public class Pet {
     @Column(name = "pet_name", nullable = false, length = 45)
     private String petName;
 
-    @Enumerated(EnumType.STRING) // Java Enum을 String으로 매핑
-    @Column(name = "pet_size", nullable = false)
-    private PetSizeType petSize;
+    @Column(name = "pet_birth", nullable = false)
+    private Date petBirth;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pet_gender", nullable = false)
+    private PetGender petGender;
+
+    public enum PetGender {
+        cock, female
+    }
+
+    @Column(name = "pet_breed", length = 45)
+    private String petBreed;
 }

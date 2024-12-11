@@ -10,6 +10,7 @@ import lombok.Setter;
 @Table(name = "naver_api_user_login")
 public class NaverApiUserLogin {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "naver_api_user_id", nullable = false)
     private Long naverApiUserId;
 

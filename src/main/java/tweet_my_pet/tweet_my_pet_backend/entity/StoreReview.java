@@ -10,6 +10,7 @@ import lombok.Setter;
 @Table(name = "store_review")
 public class StoreReview {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "store_review_id", nullable = false)
     private Long storeReviewId;
 
