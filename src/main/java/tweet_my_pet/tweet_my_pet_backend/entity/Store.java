@@ -3,15 +3,13 @@ package tweet_my_pet.tweet_my_pet_backend.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 import org.locationtech.jts.geom.Point;
-import java.awt.*;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "company")
-public class Company {
+public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "company_id", nullable = false)

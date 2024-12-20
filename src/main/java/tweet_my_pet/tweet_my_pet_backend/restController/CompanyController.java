@@ -8,11 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.locationtech.jts.geom.Point;
 import tweet_my_pet.tweet_my_pet_backend.dto.CompanyDto;
-import tweet_my_pet.tweet_my_pet_backend.entity.Company;
+import tweet_my_pet.tweet_my_pet_backend.entity.Store;
 import tweet_my_pet.tweet_my_pet_backend.repository.CompanyRepository;
 import tweet_my_pet.tweet_my_pet_backend.service.CompanyService;
-
-import java.awt.*;
 
 @RestController
 @RequestMapping("/api/companies")
@@ -29,17 +27,17 @@ public class CompanyController {
 
     @PostMapping
     public ResponseEntity<String> saveCompany(@RequestBody CompanyDto companyDTO) {
-        Company company = new Company();
-        company.setCompanyName(companyDTO.getName());
-        company.setCompanyTel(companyDTO.getTel());
-        company.setCompanyLocation(companyDTO.getLocation());
-        company.setCompanyPresidentName(companyDTO.getPresidentName());
+        Store store = new Store();
+        store.setCompanyName(companyDTO.getName());
+        store.setCompanyTel(companyDTO.getTel());
+        store.setCompanyLocation(companyDTO.getLocation());
+        store.setCompanyPresidentName(companyDTO.getPresidentName());
 
         // 위도와 경도로 Point 생성
         Point point = companyService.createPoint(companyDTO.getLatitude(), companyDTO.getLongitude());
-        company.setCompanyPoint(point);
+        store.setCompanyPoint(point);
 
-        companyRepository.save(company);
+        companyRepository.save(store);
         return ResponseEntity.ok("Company saved successfully!");
     }
 }
