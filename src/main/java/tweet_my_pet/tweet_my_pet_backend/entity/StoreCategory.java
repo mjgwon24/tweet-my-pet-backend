@@ -7,14 +7,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "company_category")
+@Table(name = "store_category")
 public class StoreCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "company_category_id", nullable = false)
-    private Integer companyCategoryId;
+    @Column(name = "store_category_id", nullable = false)
+    private Integer storeCategoryId;
 
-    @Column(name = "company_category_name", nullable = false, length = 45)
-    private String companyCategoryName;
+    @Column(name = "store_category_name", nullable = false, length = 45)
+    private String storeCategoryName;
 
 }

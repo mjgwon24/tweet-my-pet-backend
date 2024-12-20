@@ -7,18 +7,18 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "company_introduce_text")
+@Table(name = "store_introduce_text")
 public class StoreIntroduceText {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "company_introduce_text_id", nullable = false)
-    private Long companyIntroduceTextId;
+    @Column(name = "store_introduce_text_id", nullable = false)
+    private Long storeIntroduceTextId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "company_introduce_id", nullable = false)
+    @JoinColumn(name = "store_introduce_id", nullable = false)
     private StoreIntroduce storeIntroduce;
 
-    @Column(name = "company_introduce_text_content", nullable = false, length = Integer.MAX_VALUE)
-    private String companyIntroduceTextContent;
+    @Column(name = "store_introduce_text_content", nullable = false, length = Integer.MAX_VALUE)
+    private String storeIntroduceTextContent;
 
 }

@@ -6,7 +6,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CompanyService {
+public class StoreService {
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
 

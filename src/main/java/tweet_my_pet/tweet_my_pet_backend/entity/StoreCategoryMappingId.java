@@ -13,24 +13,24 @@ import java.util.Objects;
 @Embeddable
 public class StoreCategoryMappingId implements java.io.Serializable {
     private static final long serialVersionUID = -7479129836050331227L;
-    @Column(name = "company_category_id", nullable = false)
-    private Integer companyCategoryId;
+    @Column(name = "store_category_id", nullable = false)
+    private Integer storeCategoryId;
 
-    @Column(name = "company_id", nullable = false)
-    private Long companyId;
+    @Column(name = "store_id", nullable = false)
+    private Long storeId;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         StoreCategoryMappingId entity = (StoreCategoryMappingId) o;
-        return Objects.equals(this.companyId, entity.companyId) &&
-                Objects.equals(this.companyCategoryId, entity.companyCategoryId);
+        return Objects.equals(this.storeId, entity.storeId) &&
+                Objects.equals(this.storeCategoryId, entity.storeCategoryId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(companyId, companyCategoryId);
+        return Objects.hash(storeId, storeCategoryId);
     }
 
 }
