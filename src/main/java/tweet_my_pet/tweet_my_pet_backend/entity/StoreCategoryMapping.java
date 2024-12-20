@@ -7,19 +7,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "company_category_mapping")
+@Table(name = "store_category_mapping")
 public class StoreCategoryMapping {
     @EmbeddedId
     private StoreCategoryMappingId id;
 
-    @MapsId("companyCategoryId")
+    @MapsId("storeCategoryId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "company_category_id", nullable = false)
+    @JoinColumn(name = "store_category_id", nullable = false)
     private StoreCategory storeCategory;
 
-    @MapsId("companyId")
+    @MapsId("storeId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "company_id", nullable = false)
+    @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
 }
