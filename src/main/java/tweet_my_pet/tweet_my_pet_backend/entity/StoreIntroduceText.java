@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "company_introduce_text")
-public class CompanyIntroduceText {
+public class StoreIntroduceText {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "company_introduce_text_id", nullable = false)
@@ -16,7 +16,7 @@ public class CompanyIntroduceText {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "company_introduce_id", nullable = false)
-    private CompanyIntroduce companyIntroduce;
+    private StoreIntroduce storeIntroduce;
 
     @Column(name = "company_introduce_text_content", nullable = false, length = Integer.MAX_VALUE)
     private String companyIntroduceTextContent;
