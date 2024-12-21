@@ -1,8 +1,9 @@
-package tweet_my_pet.tweet_my_pet_backend.entity;
+package tweet_my_pet.tweet_my_pet_backend.entity.store;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import tweet_my_pet.tweet_my_pet_backend.entity.User;
 
 @Getter
 @Setter

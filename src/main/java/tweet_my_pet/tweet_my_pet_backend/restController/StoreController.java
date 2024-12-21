@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.locationtech.jts.geom.Point;
 import tweet_my_pet.tweet_my_pet_backend.dto.StoreDto;
-import tweet_my_pet.tweet_my_pet_backend.entity.Store;
+import tweet_my_pet.tweet_my_pet_backend.entity.store.Store;
 import tweet_my_pet.tweet_my_pet_backend.repository.StoreRepository;
 import tweet_my_pet.tweet_my_pet_backend.service.StoreService;
 
