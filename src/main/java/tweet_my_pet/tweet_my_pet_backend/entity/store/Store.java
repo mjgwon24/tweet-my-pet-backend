@@ -25,8 +25,9 @@ public class Store {
     @Column(nullable = false)
     private String storeLocation;
 
-    @Column(nullable = false, columnDefinition = "POINT")
-    private Point storePoint; // 위도, 경도
+    @Column(name = "store_point", nullable = false,
+            columnDefinition = "geometry(Point, 4326)")
+    private Point storePoint; //위도 경도 postgis 반영
 
     @Column(length = 45)
     private String storePresidentName;
