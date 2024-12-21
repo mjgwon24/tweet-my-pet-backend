@@ -35,6 +35,8 @@ public class Store {
     @Column(length = 45)
     private String storePresidentName;
 
+    private Double rating;
+    private int reviewCount;
     private String petGuide;
     private String useGuide;
 
