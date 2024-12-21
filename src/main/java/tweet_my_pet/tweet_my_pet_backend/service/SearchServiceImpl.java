@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class SearchServiceImpl implements SearchService {
 
     private final SearchHistoryRepository searchHistoryRepository;
-    private final PopularSearchRepository popularSearchTermRepository;
+    private final PopularSearchRepository popularSearchRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -32,7 +32,7 @@ public class SearchServiceImpl implements SearchService {
     @Override
     @Transactional(readOnly = true)
     public List<String> getPopularSearchTerms() {
-        return popularSearchTermRepository.findTop7ByOrderBySearchCountDesc()
+        return popularSearchRepository.findTop7ByOrderBySearchCountDesc()
                 .stream()
                 .map(PopularSearch::getSearchTerm)
                 .collect(Collectors.toList());
@@ -63,10 +63,10 @@ public class SearchServiceImpl implements SearchService {
         }
 
         // 인기 검색어 업데이트
-        PopularSearch popularSearch = popularSearchTermRepository.findBySearchTerm(searchTerm)
+        PopularSearch popularSearch = popularSearchRepository.findBySearchTerm(searchTerm)
                 .orElse(new PopularSearch(searchTerm));
         popularSearch.setSearchCount(popularSearch.getSearchCount() + 1);
-        popularSearchTermRepository.save(popularSearch);
+        popularSearchRepository.save(popularSearch);
     }
 
 }
