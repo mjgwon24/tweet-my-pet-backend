@@ -5,6 +5,7 @@ import lombok.*;
 import org.locationtech.jts.geom.Point;
 import tweet_my_pet.tweet_my_pet_backend.entity.room.Room;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,7 +36,7 @@ public class Store {
     @Column(length = 45)
     private String storePresidentName;
 
-    private Double rating;
+    private double rating;
     private int reviewCount;
     private String petGuide;
     private String useGuide;
@@ -45,5 +46,5 @@ public class Store {
     private StoreFeature storeFeature;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
-    private List<Room> rooms;
+    private List<Room> rooms = new ArrayList<>();
 }

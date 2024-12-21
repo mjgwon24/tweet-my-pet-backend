@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import tweet_my_pet.tweet_my_pet_backend.entity.room.Reservation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -37,5 +38,5 @@ public class User {
     private String userEmail;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Reservation> reservations;
+    private List<Reservation> reservations = new ArrayList<>();
 }
