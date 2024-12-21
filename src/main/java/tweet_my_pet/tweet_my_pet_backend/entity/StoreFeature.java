@@ -18,7 +18,7 @@ public class StoreFeature {
 
     @ElementCollection
     @Enumerated(EnumType.STRING)
-    private List<PetSizeType> petSizeTypes; // 수용 가능한 견종 사이즈 리스트 (대형, 중형, 소형)
+    private List<PetSizeType> acceptPetSizes; // 수용 가능한 견종 사이즈 리스트 (대형, 중형, 소형)
 
     private Boolean isParking;              // 주차 가능 여부
     private Boolean isDogPark;              // 애견운동장 보유 여부
