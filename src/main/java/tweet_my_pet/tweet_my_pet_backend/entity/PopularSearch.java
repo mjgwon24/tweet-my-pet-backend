@@ -11,7 +11,7 @@ import lombok.Setter;
  */
 
 @Entity
-@Table(name = "popular_search_terms")
+@Table(name = "popular_search")
 @Getter
 @Setter
 @NoArgsConstructor
