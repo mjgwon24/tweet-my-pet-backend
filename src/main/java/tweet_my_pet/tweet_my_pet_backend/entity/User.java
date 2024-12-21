@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import tweet_my_pet.tweet_my_pet_backend.entity.room.Reservation;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -32,4 +35,7 @@ public class User {
 
     @Column(name = "user_email", nullable = false, length = 45)
     private String userEmail;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Reservation> reservations;
 }
