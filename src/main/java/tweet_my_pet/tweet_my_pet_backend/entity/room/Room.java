@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import tweet_my_pet.tweet_my_pet_backend.entity.store.Store;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -29,8 +30,8 @@ public class Room {
     private int totalRoomCount;     // 총 방 개수
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-    private List<RoomAvailability> roomAvailabilities;
+    private List<RoomAvailability> roomAvailabilities = new ArrayList<>();
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-    private List<Reservation> reservations;
+    private List<Reservation> reservations = new ArrayList<>();
 }
