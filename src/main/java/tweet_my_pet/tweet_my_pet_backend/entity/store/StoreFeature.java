@@ -1,7 +1,8 @@
-package tweet_my_pet.tweet_my_pet_backend.entity;
+package tweet_my_pet.tweet_my_pet_backend.entity.store;
 
 import jakarta.persistence.*;
 import lombok.*;
+import tweet_my_pet.tweet_my_pet_backend.entity.enums.PetSizeType;
 
 import java.util.List;
 
