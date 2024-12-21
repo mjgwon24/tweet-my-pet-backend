@@ -18,6 +18,7 @@ public class StoreFeature {
     @Column(name = "store_feature_id", nullable = false)
     private Long id;
 
+    @Builder.Default
     @ElementCollection
     @Enumerated(EnumType.STRING)
     private List<PetSizeType> acceptPetSizes = new ArrayList<>(); // 수용 가능한 견종 사이즈 리스트 (대형, 중형, 소형)

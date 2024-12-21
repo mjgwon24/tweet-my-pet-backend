@@ -29,9 +29,11 @@ public class Room {
     private int pricePerNight;      // 1박당 가격
     private int totalRoomCount;     // 총 방 개수
 
+    @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<RoomAvailability> roomAvailabilities = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private List<Reservation> reservations = new ArrayList<>();
 }

@@ -37,6 +37,7 @@ public class User {
     @Column(name = "user_email", nullable = false, length = 45)
     private String userEmail;
 
+    @Builder.Default
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Reservation> reservations = new ArrayList<>();
 }
