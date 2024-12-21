@@ -45,6 +45,7 @@ public class Store {
     @JoinColumn(name = "store_introduce_id")
     private StoreFeature storeFeature;
 
+    @Builder.Default
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
     private List<Room> rooms = new ArrayList<>();
 }
