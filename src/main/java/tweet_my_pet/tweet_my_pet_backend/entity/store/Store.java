@@ -3,6 +3,9 @@ package tweet_my_pet.tweet_my_pet_backend.entity.store;
 import jakarta.persistence.*;
 import lombok.*;
 import org.locationtech.jts.geom.Point;
+import tweet_my_pet.tweet_my_pet_backend.entity.room.Room;
+
+import java.util.List;
 
 @Entity
 @Builder
@@ -38,4 +41,7 @@ public class Store {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "store_introduce_id")
     private StoreFeature storeFeature;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+    private List<Room> rooms;
 }
