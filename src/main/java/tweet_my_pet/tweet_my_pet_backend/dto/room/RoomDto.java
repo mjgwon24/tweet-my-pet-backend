@@ -7,7 +7,7 @@ import tweet_my_pet.tweet_my_pet_backend.entity.store.Store;
 public class RoomDto {
     // 방 추가 요청
     @Builder
-    public record AddRoomRequest(
+    public record CreateRoomRequest(
             String roomType,
             int pricePerNight,
             int totalRoomCount
@@ -25,7 +25,7 @@ public class RoomDto {
 
     // 방 추가 응답
     @Builder
-    public record AddRoomResponse(
+    public record CreateRoomResponse(
             Long id,
             String roomType,
             int pricePerNight,
