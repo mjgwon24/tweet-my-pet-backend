@@ -11,12 +11,13 @@ import tweet_my_pet.tweet_my_pet_backend.dto.room.RoomDto;
 import tweet_my_pet.tweet_my_pet_backend.dto.room.RoomDto.CreateRoomRequest;
 import tweet_my_pet.tweet_my_pet_backend.dto.store.StoreFeatureDto.CreateStoreFeatureRequest;
 import tweet_my_pet.tweet_my_pet_backend.entity.enums.PetSizeType;
+import tweet_my_pet.tweet_my_pet_backend.entity.enums.StoreCategory;
 import tweet_my_pet.tweet_my_pet_backend.entity.room.Room;
 import tweet_my_pet.tweet_my_pet_backend.entity.store.Store;
 import tweet_my_pet.tweet_my_pet_backend.entity.store.StoreFeature;
 import tweet_my_pet.tweet_my_pet_backend.repository.RoomRepository;
 import tweet_my_pet.tweet_my_pet_backend.repository.StoreRepository;
-import org.locationtech.jts.geom.Point;
+import org.springframework.data.geo.Point;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ class StoreServiceTest {
 
     @Test
     @DisplayName("매장 추가 기능 테스트")
-    void createStore() {
+    void createStoreTest() {
         // given: CreateStoreRequest 생성
         CreateStoreFeatureRequest featureRequest = CreateStoreFeatureRequest.builder()
                 .acceptPetSizes(List.of(PetSizeType.small, PetSizeType.medium))
@@ -61,6 +62,7 @@ class StoreServiceTest {
                 .storeName("store1")
                 .storeTel("010-1234-5678")
                 .storeLocation("서울시 강남구")
+                .storeCategory(StoreCategory.CAFE)
                 .latitude(37.1234)
                 .longitude(127.1234)
                 .petGuide("애견 동반 가능")
@@ -100,6 +102,97 @@ class StoreServiceTest {
         assertEquals("double", room2.getRoomType());
         assertEquals(20000, room2.getPricePerNight());
         assertEquals(5, room2.getTotalRoomCount());
+    }
+
+    @Test
+    @DisplayName("매장 목록 조회 기능 테스트")
+    void fetchStoresTest() {
+        // given
+        // 카페 5개 저장
+        for (int i = 0; i < 5; i++) {
+            CreateStoreFeatureRequest featureRequest = CreateStoreFeatureRequest.builder()
+                    .acceptPetSizes(List.of(PetSizeType.small, PetSizeType.medium))
+                    .isParking(true)
+                    .isDogPark(true)
+                    .isDogSwimmingPool(true)
+                    .isInternet(true)
+                    .isBarbecue(true)
+                    .build();
+
+            CreateRoomRequest roomRequest1 = CreateRoomRequest.builder()
+                    .roomType("single")
+                    .pricePerNight(10000)
+                    .totalRoomCount(10)
+                    .build();
+
+            CreateRoomRequest roomRequest2 = CreateRoomRequest.builder()
+                    .roomType("double")
+                    .pricePerNight(20000)
+                    .totalRoomCount(5)
+                    .build();
+
+            CreateStoreRequest storeRequest = CreateStoreRequest.builder()
+                    .storeName("store" + i)
+                    .storeTel("010-1234-5678")
+                    .storeLocation("서울시 강남구")
+                    .storeCategory(StoreCategory.CAFE)
+                    .latitude(37.7524)
+                    .longitude(128.9116)
+                    .petGuide("애견 동반 가능")
+                    .useGuide("예약 필수")
+                    .feature(featureRequest)
+                    .rooms(List.of(roomRequest1, roomRequest2))
+                    .build();
+
+            storeService.createStore(storeRequest);
+        }
+
+        // 캠핑장 6개 저장
+        for (int i = 0; i < 6; i++) {
+            CreateStoreFeatureRequest featureRequest = CreateStoreFeatureRequest.builder()
+                    .acceptPetSizes(List.of(PetSizeType.small, PetSizeType.medium))
+                    .isParking(false)
+                    .isDogPark(true)
+                    .isDogSwimmingPool(true)
+                    .isInternet(true)
+                    .isBarbecue(true)
+                    .build();
+
+            CreateRoomRequest roomRequest1 = CreateRoomRequest.builder()
+                    .roomType("single")
+                    .pricePerNight(10000)
+                    .totalRoomCount(10)
+                    .build();
+
+            CreateRoomRequest roomRequest2 = CreateRoomRequest.builder()
+                    .roomType("double")
+                    .pricePerNight(20000)
+                    .totalRoomCount(5)
+                    .build();
+
+            CreateStoreRequest storeRequest = CreateStoreRequest.builder()
+                    .storeName("store" + i)
+                    .storeTel("010-1234-5678")
+                    .storeLocation("서울시 강남구")
+                    .storeCategory(StoreCategory.CAMPSITE)
+                    .latitude(37.1234)
+                    .longitude(127.1234)
+                    .petGuide("애견 동반 가능")
+                    .useGuide("예약 필수")
+                    .feature(featureRequest)
+                    .rooms(List.of(roomRequest1, roomRequest2))
+                    .build();
+
+            storeService.createStore(storeRequest);
+        }
+
+        // when: 매장 목록 조회
+        StoreDto.FetchStoresResponse response = storeService.fetchStoresByStoreCategoryAndArray(
+                StoreCategory.ACCOMMODATION, "rating", new Point(37.7539, 128.9131), 0, 4);
+
+        // then: 매장 목록 조회 확인
+        assertNotNull(response);
+        assertEquals(4, response.stores().size());
     }
 
 }
