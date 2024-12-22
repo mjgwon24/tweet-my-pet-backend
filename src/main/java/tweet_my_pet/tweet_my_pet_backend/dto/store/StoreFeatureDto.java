@@ -9,7 +9,7 @@ import java.util.List;
 public class StoreFeatureDto {
     // 매장 특징 추가 요청
     @Builder
-    public record AddStoreFeatureRequest(
+    public record CreateStoreFeatureRequest(
             List<PetSizeType> acceptPetSizes,
             boolean isParking,
             boolean isDogPark,
