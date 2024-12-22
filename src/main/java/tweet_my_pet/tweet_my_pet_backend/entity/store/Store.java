@@ -3,6 +3,7 @@ package tweet_my_pet.tweet_my_pet_backend.entity.store;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.geo.Point;
+import tweet_my_pet.tweet_my_pet_backend.entity.enums.StoreCategory;
 import tweet_my_pet.tweet_my_pet_backend.entity.room.Room;
 
 import java.util.ArrayList;
@@ -34,6 +35,9 @@ public class Store {
 
     @Column(length = 45)
     private String storePresidentName;
+
+    @Enumerated(EnumType.STRING)
+    private StoreCategory storeCategory;
 
     private double rating;
     private int reviewCount;
