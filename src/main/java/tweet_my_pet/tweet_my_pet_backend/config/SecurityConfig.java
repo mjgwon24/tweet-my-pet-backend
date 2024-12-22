@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults()) // 기본 CORS 설정 허용
                 .csrf(csrf -> csrf.disable()) // 최신 방식으로 CSRF 보호 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/auth/kakao/**").permitAll() // 특정 엔드포인트 허용
+                        .requestMatchers("/**").permitAll() // 특정 엔드포인트 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .sessionManagement(session -> session
