@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class JwtUtils {
+public class JwtUtil {
     @Value("{jwt.secret}")
     private static String SECRET_KEY;
     private static final long EXPIRATION_TIME = 864_000_000; // 10일
