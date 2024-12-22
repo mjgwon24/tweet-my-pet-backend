@@ -5,9 +5,18 @@ import tweet_my_pet.tweet_my_pet_backend.entity.room.Room;
 import tweet_my_pet.tweet_my_pet_backend.entity.store.Store;
 
 public class RoomDto {
-    // 방 추가 요청
+    // 방 추가 초기 요청
     @Builder
     public record CreateRoomRequest(
+            String roomType,
+            int pricePerNight,
+            int totalRoomCount
+    ) {}
+
+    // 매장 생성 후 방 추가 요청
+    @Builder
+    public record CreateRoomAddRequest(
+            Long storeId,
             String roomType,
             int pricePerNight,
             int totalRoomCount
