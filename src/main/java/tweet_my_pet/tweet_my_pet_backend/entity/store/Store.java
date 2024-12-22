@@ -2,7 +2,7 @@ package tweet_my_pet.tweet_my_pet_backend.entity.store;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.locationtech.jts.geom.Point;
+import org.springframework.data.geo.Point;
 import tweet_my_pet.tweet_my_pet_backend.entity.room.Room;
 
 import java.util.ArrayList;
@@ -29,9 +29,8 @@ public class Store {
     @Column(nullable = false)
     private String storeLocation;
 
-    @Column(name = "store_point", nullable = false,
-            columnDefinition = "geometry(Point, 4326)")
-    private Point storePoint; //위도 경도 postgis 반영
+    @Column(nullable = false)
+    private Point storePoint; // 위도, 경도
 
     @Column(length = 45)
     private String storePresidentName;
@@ -42,7 +41,7 @@ public class Store {
     private String useGuide;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "store_introduce_id")
+    @JoinColumn(name = "store_feature_id")
     private StoreFeature storeFeature;
 
     @Builder.Default
