@@ -1,3 +1,7 @@
+DELETE FROM store_feature;
+DELETE FROM room;
+DELETE FROM store;
+
 -- store_feature 데이터 삽입
 INSERT INTO store_feature (store_feature_id, is_small_dog, is_medium_dog, is_large_dog, is_parking, is_dog_park, is_dog_swimming_pool, is_internet, is_barbecue, is_toilet_division, is_food_packing, is_waiting_place, is_kid_seat)
 VALUES
