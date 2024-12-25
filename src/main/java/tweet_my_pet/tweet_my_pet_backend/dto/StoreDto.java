@@ -2,12 +2,12 @@ package tweet_my_pet.tweet_my_pet_backend.dto;
 
 import lombok.Builder;
 import org.springframework.data.geo.Point;
+import tweet_my_pet.tweet_my_pet_backend.dto.room.RoomDto;
 import tweet_my_pet.tweet_my_pet_backend.dto.room.RoomDto.CreateRoomRequest;
-import tweet_my_pet.tweet_my_pet_backend.dto.room.RoomDto.FetchRoomResponse;
+import tweet_my_pet.tweet_my_pet_backend.dto.store.StoreFeatureDto;
 import tweet_my_pet.tweet_my_pet_backend.dto.store.StoreFeatureDto.CreateStoreFeatureRequest;
-import tweet_my_pet.tweet_my_pet_backend.dto.store.StoreFeatureDto.FetchStoreFeatureResponse;
+import tweet_my_pet.tweet_my_pet_backend.entity.enums.StoreCategory;
 import tweet_my_pet.tweet_my_pet_backend.entity.store.Store;
-import tweet_my_pet.tweet_my_pet_backend.entity.store.StoreFeature;
 
 import java.util.List;
 
@@ -21,6 +21,7 @@ public class StoreDto {
             double latitude,
             double longitude,
             String presidentName,
+            StoreCategory storeCategory,
             String petGuide,
             String useGuide,
             CreateStoreFeatureRequest feature,
@@ -35,6 +36,7 @@ public class StoreDto {
                     .storeLocation(this.storeLocation)
                     .storePoint(storePoint)
                     .storePresidentName(this.presidentName)
+                    .storeCategory(this.storeCategory)
                     .rating(0.0)
                     .reviewCount(0)
                     .petGuide(this.petGuide)
@@ -50,10 +52,20 @@ public class StoreDto {
         }
     }
 
+    // 매장 목록 조회 요청
+    @Builder
+    public record FetchStoresRequest(
+            StoreCategory storeCategory,
+            String sort,
+            Point point,
+            int pageNumber,
+            int size
+    ) {}
+
     // 매장 목록 조회 응답
     @Builder
     public record FetchStoresResponse(
-            List<FetchedStore> stores,
+            List<StoreDto.FetchStoresResponse.FetchedStore> stores,
             int currentPage,
             int totalPages,
             Long totalElements
@@ -61,12 +73,15 @@ public class StoreDto {
         @Builder
         public record FetchedStore(
                 Long id,
-                String name,
+                String storeName,
+                String location,
+                StoreCategory storeCategory,
+                double longitude,
+                double latitude,
                 double rating,
                 int reviewCount,
                 double distanceSpacing,
-                String location,
-                StoreFeature feature,
+                String feature,
                 int lowerPrice
         ) {}
     }
@@ -80,11 +95,12 @@ public class StoreDto {
             String storeLocation,
             Point storePoint,
             String storePresidentName,
+            StoreCategory storeCategory,
             double rating,
             int reviewCount,
             String petGuide,
             String useGuide,
-            FetchStoreFeatureResponse feature,
-            List<FetchRoomResponse> rooms
+            StoreFeatureDto.FetchStoreFeatureResponse feature,
+            List<RoomDto.FetchRoomResponse> rooms
     ) {}
 }
