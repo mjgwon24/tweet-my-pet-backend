@@ -12,6 +12,7 @@ import tweet_my_pet.tweet_my_pet_backend.dto.KakaoTokenResponse;
 import tweet_my_pet.tweet_my_pet_backend.dto.KakaoUserInfo;
 import tweet_my_pet.tweet_my_pet_backend.entity.KakaoApiUserLogin;
 import tweet_my_pet.tweet_my_pet_backend.entity.Pet;
+import tweet_my_pet.tweet_my_pet_backend.entity.enums.PetSizeType;
 import tweet_my_pet.tweet_my_pet_backend.entity.User;
 import tweet_my_pet.tweet_my_pet_backend.repository.KakaoApiUserLoginRepository;
 import tweet_my_pet.tweet_my_pet_backend.repository.PetRepository;
