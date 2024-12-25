@@ -1,15 +1,90 @@
 package tweet_my_pet.tweet_my_pet_backend.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import org.springframework.data.geo.Point;
+import tweet_my_pet.tweet_my_pet_backend.dto.room.RoomDto.CreateRoomRequest;
+import tweet_my_pet.tweet_my_pet_backend.dto.room.RoomDto.FetchRoomResponse;
+import tweet_my_pet.tweet_my_pet_backend.dto.store.StoreFeatureDto.CreateStoreFeatureRequest;
+import tweet_my_pet.tweet_my_pet_backend.dto.store.StoreFeatureDto.FetchStoreFeatureResponse;
+import tweet_my_pet.tweet_my_pet_backend.entity.store.Store;
+import tweet_my_pet.tweet_my_pet_backend.entity.store.StoreFeature;
 
-@Getter
-@Setter
+import java.util.List;
+
 public class StoreDto {
-    private String name;
-    private String tel;
-    private String location;
-    private String presidentName;
-    private double latitude;
-    private double longitude;
+    // 매장 추가 요청
+    @Builder
+    public record CreateStoreRequest(
+            String storeName,
+            String storeTel,
+            String storeLocation,
+            double latitude,
+            double longitude,
+            String presidentName,
+            String petGuide,
+            String useGuide,
+            CreateStoreFeatureRequest feature,
+            List<CreateRoomRequest> rooms
+    ) {
+        public Store toEntity() {
+            Point storePoint = new Point(this.latitude(), this.longitude());
+
+            Store store = Store.builder()
+                    .storeName(this.storeName)
+                    .storeTel(this.storeTel)
+                    .storeLocation(this.storeLocation)
+                    .storePoint(storePoint)
+                    .storePresidentName(this.presidentName)
+                    .rating(0.0)
+                    .reviewCount(0)
+                    .petGuide(this.petGuide)
+                    .useGuide(this.useGuide)
+                    .storeFeature(this.feature.toEntity())
+                    .build();
+
+            this.rooms.stream()
+                    .map(roomRequest -> roomRequest.toEntity(store))
+                    .forEach(store.getRooms()::add);
+
+            return store;
+        }
+    }
+
+    // 매장 목록 조회 응답
+    @Builder
+    public record FetchStoresResponse(
+            List<FetchedStore> stores,
+            int currentPage,
+            int totalPages,
+            Long totalElements
+    ) {
+        @Builder
+        public record FetchedStore(
+                Long id,
+                String name,
+                double rating,
+                int reviewCount,
+                double distanceSpacing,
+                String location,
+                StoreFeature feature,
+                int lowerPrice
+        ) {}
+    }
+
+    // 매장 단일 조회 응답
+    @Builder
+    public record FetchStoreResponse(
+            Long id,
+            String storeName,
+            String storeTel,
+            String storeLocation,
+            Point storePoint,
+            String storePresidentName,
+            double rating,
+            int reviewCount,
+            String petGuide,
+            String useGuide,
+            FetchStoreFeatureResponse feature,
+            List<FetchRoomResponse> rooms
+    ) {}
 }
