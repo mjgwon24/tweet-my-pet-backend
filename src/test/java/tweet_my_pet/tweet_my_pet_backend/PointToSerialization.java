@@ -19,15 +19,15 @@ public class PointToSerialization {
         // given - 위도 경도 데이터
         // longitude: x, latitude: y
         double[][] points = {
-            {37.7539, 128.9131},
-            {37.8839, 128.9331},
-            {37.9939, 128.9231}
+                {37.7539, 128.9131},
+                {37.8839, 128.9331},
+                {37.9939, 128.9231}
         };
 
         // when - points 개수만큼 직렬화 변환
         List<String> serializedPoints = Arrays.stream(points)
-            .map(point -> PointUtil.serializePoint(point[0], point[1]))
-            .toList();
+                .map(point -> PointUtil.serializePoint(point[0], point[1]))
+                .toList();
 
         // then
         System.out.println("========== 직렬화 변환 결과 ==========");
