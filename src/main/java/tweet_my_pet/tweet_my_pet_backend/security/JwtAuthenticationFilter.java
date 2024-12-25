@@ -8,7 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import tweet_my_pet.tweet_my_pet_backend.util.JwtUtils;
+import tweet_my_pet.tweet_my_pet_backend.util.JwtUtil;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain chain, Authentication authResult) {
         // JWT 생성 및 발급
-        String token = JwtUtils.createToken(authResult.getName());
+        String token = JwtUtil.createToken(authResult.getName());
         response.addHeader("Authorization", "Bearer " + token);
     }
 }

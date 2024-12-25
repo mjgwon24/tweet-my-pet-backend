@@ -25,9 +25,11 @@ public class Room {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
-    private String roomType;        // 방 종류
-    private int pricePerNight;      // 1박당 가격
-    private int totalRoomCount;     // 총 방 개수
+    private String roomType;                // 방 종류
+    private int pricePerNight;              // 1박당 가격
+    private int totalRoomCount;             // 총 방 개수
+    private String availablePeoplePets;  // 수용 가능 인원 및 애완동물
+    private String roomDescription;         // 방 설명
 
     @Builder.Default
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
