@@ -1,4 +1,3 @@
-
 package tweet_my_pet.tweet_my_pet_backend.util;
 
 import org.springframework.data.geo.Point;
