@@ -10,21 +10,33 @@ public class StoreFeatureDto {
     // 매장 특징 추가 요청
     @Builder
     public record CreateStoreFeatureRequest(
-            List<PetSizeType> acceptPetSizes,
+            boolean isSmallDog,
+            boolean isMediumDog,
+            boolean isLargeDog,
             boolean isParking,
             boolean isDogPark,
             boolean isDogSwimmingPool,
             boolean isInternet,
-            boolean isBarbecue
+            boolean isBarbecue,
+            boolean isToiletDivision,
+            boolean isFoodPacking,
+            boolean isWaitingPlace,
+            boolean isKidSeat
     ) {
         public StoreFeature toEntity() {
             return StoreFeature.builder()
-                    .acceptPetSizes(this.acceptPetSizes)
+                    .isSmallDog(this.isSmallDog)
+                    .isMediumDog(this.isMediumDog)
+                    .isLargeDog(this.isLargeDog)
                     .isParking(this.isParking)
                     .isDogPark(this.isDogPark)
                     .isDogSwimmingPool(this.isDogSwimmingPool)
                     .isInternet(this.isInternet)
                     .isBarbecue(this.isBarbecue)
+                    .isToiletDivision(this.isToiletDivision)
+                    .isFoodPacking(this.isFoodPacking)
+                    .isWaitingPlace(this.isWaitingPlace)
+                    .isKidSeat(this.isKidSeat)
                     .build();
         }
     }
@@ -33,11 +45,17 @@ public class StoreFeatureDto {
     @Builder
     public record FetchStoreFeatureResponse(
             Long id,
-            List<PetSizeType> acceptPetSizes,
+            boolean isSmallDog,
+            boolean isMediumDog,
+            boolean isLargeDog,
             boolean isParking,
             boolean isDogPark,
             boolean isDogSwimmingPool,
             boolean isInternet,
-            boolean isBarbecue
+            boolean isBarbecue,
+            boolean isToiletDivision,
+            boolean isFoodPacking,
+            boolean isWaitingPlace,
+            boolean isKidSeat
     ) {}
 }
