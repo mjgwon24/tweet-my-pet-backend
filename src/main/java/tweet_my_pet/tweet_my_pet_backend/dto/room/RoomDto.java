@@ -10,13 +10,17 @@ public class RoomDto {
     public record CreateRoomRequest(
             String roomType,
             int pricePerNight,
-            int totalRoomCount
+            int totalRoomCount,
+            String availablePeoplePets,
+            String roomDescription
     ) {
         public Room toEntity(Store store) {
             return Room.builder()
                     .roomType(this.roomType)
                     .pricePerNight(this.pricePerNight)
                     .totalRoomCount(this.totalRoomCount)
+                    .availablePeoplePets(this.availablePeoplePets)
+                    .roomDescription(this.roomDescription)
                     .store(store)
                     .build();
         }
@@ -28,6 +32,8 @@ public class RoomDto {
             Long id,
             String roomType,
             int pricePerNight,
-            int totalRoomCount
+            int totalRoomCount,
+            String availablePeoplePets,
+            String roomDescription
     ) {}
 }
