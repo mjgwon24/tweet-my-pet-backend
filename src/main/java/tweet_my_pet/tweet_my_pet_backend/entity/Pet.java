@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import tweet_my_pet.tweet_my_pet_backend.entity.enums.PetSizeType;
 
 import java.util.Date;
 
@@ -44,4 +45,8 @@ public class Pet {
 
     @Column(name = "pet_breed", length = 45)
     private String petBreed;
+
+    @Enumerated(EnumType.STRING) // 석진
+    @Column(name = "pet_size", nullable = false)
+    private PetSizeType petSize;
 }
