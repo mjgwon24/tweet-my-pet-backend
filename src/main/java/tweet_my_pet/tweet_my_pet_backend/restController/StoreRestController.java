@@ -1,5 +1,6 @@
 package tweet_my_pet.tweet_my_pet_backend.restController;
 
+import org.springframework.data.geo.Point;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import tweet_my_pet.tweet_my_pet_backend.dto.StoreDto.FetchStoresResponse;
 import tweet_my_pet.tweet_my_pet_backend.dto.StoreDto.CreateStoreRequest;
 import tweet_my_pet.tweet_my_pet_backend.dto.StoreDto.FetchStoreResponse;
 import tweet_my_pet.tweet_my_pet_backend.dto.common.ResponseDto;
+import tweet_my_pet.tweet_my_pet_backend.entity.enums.StoreCategory;
 import tweet_my_pet.tweet_my_pet_backend.service.StoreService;
 
 @RequiredArgsConstructor
@@ -29,13 +31,20 @@ public class StoreRestController {
 
     // 매장 목록 조회
     @GetMapping("/list")
-    public ResponseEntity<ResponseDto<FetchStoresResponse>> fetchStores(@RequestBody FetchStoresRequest fetchStoresRequest) {
+    public ResponseEntity<ResponseDto<FetchStoresResponse>> fetchStores(@RequestParam("storeCategory") StoreCategory storeCategory,
+                                                                        @RequestParam("sort") String sort,
+                                                                        @RequestParam("pointX") double pointX,
+                                                                        @RequestParam("pointY") double pointY,
+                                                                        @RequestParam("pageNumber") int pageNumber,
+                                                                        @RequestParam("size") int size) {
+        Point point = new Point(pointX, pointY);
+
         FetchStoresResponse fetchStoreResponse = storeService.fetchStoresByStoreCategoryAndArray(
-                fetchStoresRequest.storeCategory(),
-                fetchStoresRequest.sort(),
-                fetchStoresRequest.point(),
-                fetchStoresRequest.pageNumber(),
-                fetchStoresRequest.size()
+                storeCategory,
+                sort,
+                point,
+                pageNumber,
+                size
         );
 
         return new ResponseEntity<>(
