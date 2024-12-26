@@ -40,7 +40,6 @@ public class Store {
     private String petGuide;
     private String useGuide;
 
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "store_feature_id")
     private StoreFeature storeFeature;
