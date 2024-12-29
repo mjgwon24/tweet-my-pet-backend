@@ -39,7 +39,7 @@ public class Pet {
     private PetGender petGender;
 
     public enum PetGender {
-        cock, female
+        male, female
     }
 
     @Column(name = "pet_breed", length = 45)
