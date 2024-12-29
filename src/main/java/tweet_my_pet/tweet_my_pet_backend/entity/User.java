@@ -28,7 +28,7 @@ public class User {
     @JoinColumn(name = "pet_id", nullable = true)
     private Pet pet;
 
-    @Column(name = "user_name", nullable = false, length = 45)
+    @Column(name = "user_name", length = 100)
     private String userName;
 
     @Column(name = "user_phone_number", nullable = false, length = 45)
