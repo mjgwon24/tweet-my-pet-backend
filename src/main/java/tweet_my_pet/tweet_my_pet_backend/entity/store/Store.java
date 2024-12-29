@@ -48,6 +48,9 @@ public class Store {
     @JoinColumn(name = "store_feature_id")
     private StoreFeature storeFeature;
 
+    @Column(name = "thumbpath", length = 255)
+    private String thumbPath;
+
     @Builder.Default
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
     private List<Room> rooms = new ArrayList<>();
