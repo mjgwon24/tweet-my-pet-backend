@@ -1,19 +1,21 @@
 package tweet_my_pet.tweet_my_pet_backend.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 import tweet_my_pet.tweet_my_pet_backend.entity.NaverApiUserLogin;
 import tweet_my_pet.tweet_my_pet_backend.entity.User;
 import tweet_my_pet.tweet_my_pet_backend.repository.NaverApiUserLoginRepository;
 import tweet_my_pet.tweet_my_pet_backend.repository.UsersRepository;
 
 import java.util.Map;
+import java.util.Optional;
 
+@Slf4j
 @Service
 public class NaverService {
 
@@ -45,13 +47,21 @@ public class NaverService {
                 Map.class
         );
 
+        log.info("네이버 사용자 정보 API 응답: {}", response.getBody());
+
         return (Map<String, Object>) response.getBody().get("response");
     }
 
     public User registerOrLoginUser(Map<String, Object> userInfo, String accessToken, String refreshToken) {
+        log.info("발급된 Access Token: {}", accessToken);
+        log.info("발급된 Refresh Token: {}", refreshToken);
+
+        log.info("네이버 사용자 정보: {}", userInfo);
+
         // 사용자 정보 파싱
         String userName = (String) userInfo.get("name");
         String userEmail = (String) userInfo.get("email");
+        String userPhoneNumber = (String) userInfo.getOrDefault("phone_number", "N/A");
 
         // User 엔티티 저장 또는 기존 사용자 조회
         User user = usersRepository.findByUserEmail(userEmail)
@@ -59,11 +69,12 @@ public class NaverService {
                         User.builder()
                                 .userName(userName)
                                 .userEmail(userEmail)
+                                .userPhoneNumber(userPhoneNumber)
                                 .build()
                 ));
 
         // NaverApiUserLogin 엔티티 저장
-        NaverApiUserLogin naverApiUserLogin = naverApiUserLoginRepository.findByUser(user)
+        naverApiUserLoginRepository.findByUser(user)
                 .orElseGet(() -> naverApiUserLoginRepository.save(
                         NaverApiUserLogin.builder()
                                 .naverApiUserName(userName)
@@ -73,23 +84,7 @@ public class NaverService {
                                 .build()
                 ));
 
+        log.info("NaverApiUserLogin 저장 완료: {}", naverApiUserLoginRepository);
         return user;
-    }
-
-
-
-
-    public String refreshAccessToken(String refreshToken) {
-        String tokenUrl = UriComponentsBuilder.fromHttpUrl("https://nid.naver.com/oauth2.0/token")
-                .queryParam("grant_type", "refresh_token")
-                .queryParam("client_id", clientId)
-                .queryParam("client_secret", clientSecret)
-                .queryParam("refresh_token", refreshToken)
-                .toUriString();
-
-        ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, null, Map.class);
-        Map<String, String> tokenData = (Map<String, String>) response.getBody();
-
-        return tokenData.get("access_token");
     }
 }
