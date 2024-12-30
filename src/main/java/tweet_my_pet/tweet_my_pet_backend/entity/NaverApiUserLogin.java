@@ -13,7 +13,7 @@ import lombok.*;
 public class NaverApiUserLogin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "naver_api_user_id", nullable = true)
+    @Column(name = "naver_api_user_id", nullable = false)
     private Long naverApiUserId;
 
     @Column(name = "naver_api_user_name", nullable = false, length = 45)
