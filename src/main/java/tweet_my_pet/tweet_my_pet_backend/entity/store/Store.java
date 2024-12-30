@@ -43,13 +43,11 @@ public class Store {
     private int reviewCount;
     private String petGuide;
     private String useGuide;
+    private String thumbPath;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "store_feature_id")
     private StoreFeature storeFeature;
-
-    @Column(name = "thumbpath", length = 255)
-    private String thumbPath;
 
     @Builder.Default
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
