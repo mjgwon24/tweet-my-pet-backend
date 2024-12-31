@@ -24,6 +24,7 @@ public class StoreDto {
             StoreCategory storeCategory,
             String petGuide,
             String useGuide,
+            String thumbPath,
             CreateStoreFeatureRequest feature,
             List<CreateRoomRequest> rooms
     ) {
@@ -41,6 +42,7 @@ public class StoreDto {
                     .reviewCount(0)
                     .petGuide(this.petGuide)
                     .useGuide(this.useGuide)
+                    .thumbPath(this.thumbPath)
                     .storeFeature(this.feature.toEntity())
                     .build();
 
@@ -80,6 +82,7 @@ public class StoreDto {
                 double latitude,
                 double rating,
                 int reviewCount,
+                String thumbPath,
                 double distanceSpacing,
                 String feature,
                 int lowerPrice
@@ -100,6 +103,7 @@ public class StoreDto {
             int reviewCount,
             String petGuide,
             String useGuide,
+            String thumbPath,
             StoreFeatureDto.FetchStoreFeatureResponse feature,
             List<RoomDto.FetchRoomResponse> rooms
     ) {}
