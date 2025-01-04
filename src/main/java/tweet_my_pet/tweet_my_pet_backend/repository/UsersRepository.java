@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface UsersRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.userEmail = :email")
-    Optional<User> findByUserEmail(@Param("email") String email);
+    User findByUserEmail(@Param("email") String email);
 
     @Query("SELECT MAX(u.userId) FROM User u")
     Long findLastUserId();

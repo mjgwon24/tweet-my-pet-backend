@@ -2,14 +2,16 @@ package tweet_my_pet.tweet_my_pet_backend.restController;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import tweet_my_pet.tweet_my_pet_backend.dto.NaverUserInfoDto;
 import tweet_my_pet.tweet_my_pet_backend.entity.User;
 import tweet_my_pet.tweet_my_pet_backend.service.NaverService;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -17,59 +19,73 @@ import java.util.Map;
 @RequestMapping("/auth/naver")
 public class NaverAuthController {
 
-    @Value("${naver.client_id}")
+    @Value("${naver.client-id}")
     private String clientId;
 
-    @Value("${naver.client_secret}")
+    @Value("${naver.client-secret}")
     private String clientSecret;
 
-    private final RestTemplate restTemplate;
     private final NaverService naverService;
 
-    public NaverAuthController(RestTemplate restTemplate, NaverService naverService) {
-        this.restTemplate = restTemplate;
+    public NaverAuthController(NaverService naverService) {
         this.naverService = naverService;
     }
 
     @PostMapping("/callback")
-    public ResponseEntity<?> handleNaverCallback(@RequestBody Map<String, String> requestData) {
-        String code = requestData.get("code");
-        String state = requestData.get("state");
+    public ResponseEntity<Map<String, String>> handleNaverCallback(@RequestBody NaverUserInfoDto userInfo) {
+        log.info("나는 임석진");
+        String authorizationCode = userInfo.getCode();
+        String state = userInfo.getState();
 
-        if (code == null || state == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request data");
-        }
+        // 네이버 API로부터 액세스 토큰 및 리프레시 토큰 가져오기
+        String tokenUrl = "https://nid.naver.com/oauth2.0/token";
+        RestTemplate restTemplate = new RestTemplate();
 
         try {
-            // 네이버 토큰 요청
-            String tokenUrl = UriComponentsBuilder.fromHttpUrl("https://nid.naver.com/oauth2.0/token")
-                    .queryParam("grant_type", "authorization_code")
-                    .queryParam("client_id", clientId)
-                    .queryParam("client_secret", clientSecret)
-                    .queryParam("code", code)
-                    .queryParam("state", state)
-                    .toUriString();
+            // 파라미터 설정
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("grant_type", "authorization_code");
+            params.add("client_id", clientId);
+            params.add("client_secret", clientSecret);
+            params.add("code", authorizationCode);
+            params.add("state", state);
 
-            ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenUrl, null, Map.class);
-            Map<String, String> tokenData = (Map<String, String>) tokenResponse.getBody();
+            // 토큰 요청
+            ResponseEntity<Map> tokenResponse = restTemplate.postForEntity(tokenUrl, params, Map.class);
+            Map<String, Object> tokenData = tokenResponse.getBody();
 
-            log.info("네이버 토큰 발급 응답: {}", tokenData);
+            if (tokenData != null && tokenData.containsKey("access_token")) {
+                String accessToken = (String) tokenData.get("access_token");
+                String refreshToken = (String) tokenData.get("refresh_token");
 
-            String accessToken = tokenData.get("access_token");
-            String refreshToken = tokenData.get("refresh_token");
+                // 네이버 API로부터 사용자 정보 가져오기
+                Map<String, Object> userResponse = naverService.getUserInfoFromNaver(accessToken);
+                Map<String, Object> response = (Map<String, Object>) userResponse.get("response");
 
+                String email = (String) response.get("email");
+                String name = (String) response.get("name");
+                String mobile = (String) response.get("mobile");
 
-            // 사용자 정보 요청 및 DB 저장
-            Map<String, Object> userInfo = naverService.getUserInfo(accessToken);
-            User user = naverService.registerOrLoginUser(userInfo, accessToken, refreshToken);
+                // 사용자 정보 저장 및 업데이트
+                User user = naverService.registerOrLoginUser(email, name, mobile, accessToken, refreshToken);
 
-            return ResponseEntity.ok(Map.of(
-                    "authToken", accessToken,  // 또는 다른 토큰 값
-                    "refreshToken", refreshToken
-            ));
+                // JSON 응답 생성
+                Map<String, String> tokenResponses = new HashMap<>();
+                tokenResponses.put("authToken", accessToken);
+                tokenResponses.put("refreshToken", refreshToken);
+
+                return ResponseEntity.ok(tokenResponses);
+
+            } else {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "토큰 요청 실패");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            }
         } catch (Exception e) {
-            log.error("네이버 로그인 처리 실패: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to process Naver login");
+            e.printStackTrace();
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "네이버 로그인 처리 실패");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 }
