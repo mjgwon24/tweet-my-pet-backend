@@ -1,90 +1,79 @@
 package tweet_my_pet.tweet_my_pet_backend.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
+import jakarta.transaction.Transactional;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import tweet_my_pet.tweet_my_pet_backend.entity.NaverApiUserLogin;
 import tweet_my_pet.tweet_my_pet_backend.entity.User;
 import tweet_my_pet.tweet_my_pet_backend.repository.NaverApiUserLoginRepository;
 import tweet_my_pet.tweet_my_pet_backend.repository.UsersRepository;
-
 import java.util.Map;
 import java.util.Optional;
 
-@Slf4j
+@Transactional
 @Service
 public class NaverService {
 
-    @Value("${naver.client_id}")
-    private String clientId;
+    public Map<String, Object> getUserInfoFromNaver(String accessToken) {
+        String userInfoUrl = "https://openapi.naver.com/v1/nid/me";
+        RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${naver.client_secret}")
-    private String clientSecret;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(userInfoUrl, HttpMethod.GET, request, Map.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response.getBody();
+        } else {
+            throw new RuntimeException("사용자 정보 요청 실패: " + response.getStatusCode());
+        }
+    }
 
     private final UsersRepository usersRepository;
     private final NaverApiUserLoginRepository naverApiUserLoginRepository;
-    private final RestTemplate restTemplate;
 
-    public NaverService(UsersRepository usersRepository, NaverApiUserLoginRepository naverApiUserLoginRepository, RestTemplate restTemplate) {
+    public NaverService(UsersRepository usersRepository, NaverApiUserLoginRepository naverApiUserLoginRepository) {
         this.usersRepository = usersRepository;
         this.naverApiUserLoginRepository = naverApiUserLoginRepository;
-        this.restTemplate = restTemplate;
     }
 
-    public Map<String, Object> getUserInfo(String accessToken) {
-        String userInfoUrl = "https://openapi.naver.com/v1/nid/me";
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
+    public User registerOrLoginUser(String email, String name, String mobile, String accessToken, String refreshToken) {
+        // 1. 사용자 이메일로 기존 사용자 검색
+        User user = usersRepository.findByUserEmail(email);
 
-        ResponseEntity<Map> response = restTemplate.exchange(
-                userInfoUrl,
-                org.springframework.http.HttpMethod.GET,
-                new HttpEntity<>(headers),
-                Map.class
-        );
+        if (user == null) {
+            // 2. 기존 사용자가 없으면 새로운 사용자 생성
+            user = User.builder()
+                    .userName(name)
+                    .userEmail(email)
+                    .userPhoneNumber(mobile)
+                    .build();
+            usersRepository.save(user); // 새로운 사용자 저장
+        }
 
-        log.info("네이버 사용자 정보 API 응답: {}", response.getBody());
+        // 3. 네이버 로그인 정보 처리
+        NaverApiUserLogin naverApiUserLogin = naverApiUserLoginRepository.findByUser(user);
 
-        return (Map<String, Object>) response.getBody().get("response");
-    }
+        if (naverApiUserLogin == null) {
+            // 3-1. 기존 네이버 로그인 정보가 없으면 새로 생성
+            naverApiUserLogin = NaverApiUserLogin.builder()
+                    .user(user) // User와 연관
+                    .naverApiUserName(user.getUserName()) // User의 userName 저장
+                    .naverApiAccessToken(accessToken)
+                    .naverApiRefreshToken(refreshToken)
+                    .build();
+            naverApiUserLoginRepository.save(naverApiUserLogin);
+        } else {
+            // 3-2. 기존 네이버 로그인 정보가 있으면 업데이트
+            naverApiUserLogin.setNaverApiAccessToken(accessToken);
+            naverApiUserLogin.setNaverApiRefreshToken(refreshToken);
+            naverApiUserLogin.setNaverApiUserName(user.getUserName()); // userName 업데이트
+            naverApiUserLoginRepository.save(naverApiUserLogin);
+        }
 
-    public User registerOrLoginUser(Map<String, Object> userInfo, String accessToken, String refreshToken) {
-        log.info("발급된 Access Token: {}", accessToken);
-        log.info("발급된 Refresh Token: {}", refreshToken);
-
-        log.info("네이버 사용자 정보: {}", userInfo);
-
-        // 사용자 정보 파싱
-        String userName = (String) userInfo.get("name");
-        String userEmail = (String) userInfo.get("email");
-        String userPhoneNumber = (String) userInfo.getOrDefault("phone_number", "N/A");
-
-        // User 엔티티 저장 또는 기존 사용자 조회
-        User user = usersRepository.findByUserEmail(userEmail)
-                .orElseGet(() -> usersRepository.save(
-                        User.builder()
-                                .userName(userName)
-                                .userEmail(userEmail)
-                                .userPhoneNumber(userPhoneNumber)
-                                .build()
-                ));
-
-        // NaverApiUserLogin 엔티티 저장
-        naverApiUserLoginRepository.findByUser(user)
-                .orElseGet(() -> naverApiUserLoginRepository.save(
-                        NaverApiUserLogin.builder()
-                                .naverApiUserName(userName)
-                                .naverApiAccessToken(accessToken)
-                                .naverApiRefreshToken(refreshToken)
-                                .user(user)
-                                .build()
-                ));
-
-        log.info("NaverApiUserLogin 저장 완료: {}", naverApiUserLoginRepository);
-        return user;
+        return user; // 최종 저장된 User 반환
     }
 }
