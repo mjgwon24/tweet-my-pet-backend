@@ -8,6 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tweet_my_pet.tweet_my_pet_backend.dto.SignupRequestDto;
+import tweet_my_pet.tweet_my_pet_backend.dto.ChangePasswordDto;
+import tweet_my_pet.tweet_my_pet_backend.entity.SearchHistory;
 import tweet_my_pet.tweet_my_pet_backend.entity.User;
 import tweet_my_pet.tweet_my_pet_backend.exception.DuplicateResourceException;
 import tweet_my_pet.tweet_my_pet_backend.repository.UsersRepository;
@@ -16,10 +18,11 @@ import tweet_my_pet.tweet_my_pet_backend.entity.NoApiUserLogin;
 import tweet_my_pet.tweet_my_pet_backend.repository.NoApiUserLoginRepository;
 
 
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.*;
 
 /**
  * 사용자 서비스
@@ -104,6 +107,7 @@ public class UserService {
      * 인증 관련
      */
     private Map<String, String> authCodeStore = new HashMap<>();
+    private Map<String, String> passwordTokenStore = new HashMap<>();
 
     /**
      * 인증 코드 생성
@@ -135,5 +139,68 @@ public class UserService {
             log.error("인증번호 확인 실패: 인증번호 불일치");
             return false;
         }
+    }
+    public static String generateRandomStr(int length, boolean isUpperCase) {
+        String alphabet = "abcdefghijklmnopqrstuvwxyz";
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(alphabet.charAt(secureRandom.nextInt(alphabet.length())));
+        }
+        return isUpperCase ? sb.toString().toUpperCase() : sb.toString().toLowerCase();
+    }
+    public String storeToken(String phoneNumber) {
+        String token = null;
+        try {
+            token = generateRandomStr(32, true);
+            log.info("토큰 할당:"+token);
+            log.info("토큰 할당:"+phoneNumber);
+            passwordTokenStore.put(token,phoneNumber);
+            log.info("토큰 할당 데이터:"+passwordTokenStore.get(token));
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+        return token;
+    }
+    public boolean verifyToken(ChangePasswordDto changePasswordDto) {
+        String token = changePasswordDto.getToken();
+        String phoneNumber = changePasswordDto.getPhoneNumber();
+        String storedPhoneNumber = passwordTokenStore.get(token);
+        if(storedPhoneNumber==null||storedPhoneNumber.isEmpty()){
+            log.info("토근 인증 정보가 없습니다");
+            return false;
+        }
+        if(storedPhoneNumber.equals(phoneNumber)) {
+            log.info("토근 인증 성공");
+            passwordTokenStore.remove(token);
+            return true;
+        }
+        return false;
+    }
+    public boolean updatePassword(ChangePasswordDto changePasswordDto) {
+        String phoneNumber = changePasswordDto.getPhoneNumber();
+        String password = changePasswordDto.getPassword();
+        log.info("패스워드 업데이트");
+        String encodedPassword = passwordEncoder.encode(password);
+        if(noApiUserLoginRepository.updateNoApiLoginUserPasswordByPhoneNumber(phoneNumber,encodedPassword)>0){
+            log.info("패스워드 업데이트 성공");
+            return true;
+        }
+
+        log.info("패스워드 업데이트 실패");
+        return false;
+    }
+
+    /**
+     * 유저 전화번호로 아이디 확인
+     * @param phoneNumber
+     */
+    public String getUserLoginId(String phoneNumber) {
+        String userName = noApiUserLoginRepository.findLoginIdByPhoneNumber(phoneNumber);
+        if(userName!=null){
+            return userName;
+        }
+        return null;
     }
 }

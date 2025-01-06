@@ -12,13 +12,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tweet_my_pet.tweet_my_pet_backend.dto.AuthCodeVerificationRequestDto;
+import tweet_my_pet.tweet_my_pet_backend.dto.ChangePasswordDto;
 import tweet_my_pet.tweet_my_pet_backend.dto.LoginRequest;
 import tweet_my_pet.tweet_my_pet_backend.dto.SignupRequestDto;
 import tweet_my_pet.tweet_my_pet_backend.entity.NoApiUserLogin;
 import tweet_my_pet.tweet_my_pet_backend.entity.User;
 import tweet_my_pet.tweet_my_pet_backend.exception.DuplicateResourceException;
+import tweet_my_pet.tweet_my_pet_backend.repository.UsersRepository;
 import tweet_my_pet.tweet_my_pet_backend.security.JwtTokenProvider;
 import tweet_my_pet.tweet_my_pet_backend.service.UserService;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 /**
  * 회원가입, 로그인 rest controller
@@ -35,6 +41,7 @@ public class UserRestController {
 
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UsersRepository usersRepository;
 
     /**
      * 회원가입 요청 api
@@ -127,4 +134,82 @@ public class UserRestController {
             return new ResponseEntity<>("인증 실패", HttpStatus.BAD_REQUEST);
         }
     }
+
+    /**
+     * 아이디 찾기 api 인증번호 전송
+     * @param phoneNumber
+     */
+    @Parameter(name = "PhoneNumber", description = "전화번호", required = true)
+    @Parameter(name = "Name", description = "이름", required = true)
+    @PostMapping("/send-find-auth-code")
+    public ResponseEntity<String> findLoginId(@RequestBody String phoneNumber) {
+        try {
+            // 전화번호 존재여부 확인
+            userService.existsByPhoneNumber(phoneNumber);
+            // 인증 코드 생성 및 전송
+            userService.generateAuthCode(phoneNumber);
+
+            return new ResponseEntity<>("인증번호 전송 성공", HttpStatus.OK);
+        } catch (DuplicateResourceException e) {
+            log.error("Failed to send auth code: {}", e.getMessage());
+            return new ResponseEntity<>("중복 전화번호 존재", HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            log.error("인증번호 전송 실패: {}", e.getMessage());
+            return new ResponseEntity<>("인증번호 전송 실패", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * 인증 코드 검증 api
+     * @param requestDto
+     */
+    @Tag(name = "auth", description = "로그인 아이디 찾기 인증코드 검증")
+    @Operation(summary = "인증코드 검증")
+    @Parameter(name = "phoneNumber", description = "전화번호", required = true)
+    @Parameter(name = "authCode", description = "인증코드", required = true)
+    @PostMapping("/verify-findId-auth-code")
+    public ResponseEntity<String> verifyFindIdCode(@RequestBody AuthCodeVerificationRequestDto requestDto) {
+        if (userService.verifyAuthCode(requestDto.getPhoneNumber(), requestDto.getAuthCode())) {
+
+            return new ResponseEntity<>(userService.getUserLoginId(requestDto.getPhoneNumber()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("인증 실패", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * 인증 코드 검증 api
+     * @param requestDto
+     */
+    @Tag(name = "auth", description = "비밀번호 변경 인증코드 검증")
+    @Operation(summary = "비밀번호 변경 인증코드 검증")
+    @Parameter(name = "phoneNumber", description = "전화번호", required = true)
+    @Parameter(name = "authCode", description = "인증코드", required = true)
+    @PostMapping("/verify-findPassword-auth-code")
+    public ResponseEntity<String> verifyFindPasswordCode(@RequestBody AuthCodeVerificationRequestDto requestDto) {
+        if (userService.verifyAuthCode(requestDto.getPhoneNumber(), requestDto.getAuthCode())) {
+            String token = userService.storeToken(requestDto.getPhoneNumber());
+            return new ResponseEntity<>(token, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("인증 실패", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Tag(name = "auth", description = "비밀번호 변경")
+    @Operation(summary = "비밀번호 변경")
+    @Parameter(name = "token", description = "변경 토큰", required = true)
+    @Parameter(name = "phoneNumber", description = "전화번호", required = true)
+    @Parameter(name = "password", description = "비밀번호", required = true)
+    @PostMapping("/changePassword")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDto requestDto) {
+        if(userService.verifyToken(requestDto)) {
+            if(userService.updatePassword(requestDto))
+                return new ResponseEntity<>("변경 성공", HttpStatus.OK);
+            else
+                return new ResponseEntity<>("인증 실패", HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>("인증 실패", HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
