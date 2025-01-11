@@ -2,25 +2,47 @@ package tweet_my_pet.tweet_my_pet_backend.service;
 
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.netty.handler.timeout.TimeoutException;
+import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import tweet_my_pet.tweet_my_pet_backend.dto.AuthCodeVerificationRequestDto;
 import tweet_my_pet.tweet_my_pet_backend.dto.SignupRequestDto;
 import tweet_my_pet.tweet_my_pet_backend.dto.ChangePasswordDto;
+import tweet_my_pet.tweet_my_pet_backend.dto.PetDto;
+import tweet_my_pet.tweet_my_pet_backend.dto.UserDto.FetchUserResponse;
+
+import tweet_my_pet.tweet_my_pet_backend.entity.Pet;
 import tweet_my_pet.tweet_my_pet_backend.entity.SearchHistory;
 import tweet_my_pet.tweet_my_pet_backend.entity.User;
-import tweet_my_pet.tweet_my_pet_backend.exception.DuplicateResourceException;
-import tweet_my_pet.tweet_my_pet_backend.repository.UsersRepository;
-import tweet_my_pet.tweet_my_pet_backend.security.JwtTokenProvider;
+import tweet_my_pet.tweet_my_pet_backend.entity.room.Reservation;
 import tweet_my_pet.tweet_my_pet_backend.entity.NoApiUserLogin;
+
+import tweet_my_pet.tweet_my_pet_backend.exception.AuthException.*;
+import tweet_my_pet.tweet_my_pet_backend.exception.AuthExpireException;
+import tweet_my_pet.tweet_my_pet_backend.exception.AuthInvalidException;
+import tweet_my_pet.tweet_my_pet_backend.repository.UsersRepository;
 import tweet_my_pet.tweet_my_pet_backend.repository.NoApiUserLoginRepository;
+import tweet_my_pet.tweet_my_pet_backend.repository.KakaoApiUserLoginRepository;
+import tweet_my_pet.tweet_my_pet_backend.repository.NaverApiUserLoginRepository;
+import tweet_my_pet.tweet_my_pet_backend.repository.PetRepository;
+
+import tweet_my_pet.tweet_my_pet_backend.security.JwtTokenProvider;
+
+import tweet_my_pet.tweet_my_pet_backend.exception.DuplicateResourceException;
 
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -38,6 +60,9 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final NoApiUserLoginRepository noApiUserLoginRepository;
+    private final KakaoApiUserLoginRepository kakaoApiUserLoginRepository;
+    private final NaverApiUserLoginRepository naverApiUserLoginRepository;
+    private final PetRepository petRepository;
 
     /**
      * 회원가입
@@ -103,11 +128,22 @@ public class UserService {
         }
     }
 
+    public boolean isExistsPhoneNumber(AuthCodeVerificationRequestDto.CreateIdAuthCodeVerificationRequest authCodeVerificationRequestDto) {
+        return usersRepository.existsByUserPhoneNumberAndUserName(authCodeVerificationRequestDto.phoneNumber(),authCodeVerificationRequestDto.userName());
+    }
+
+    public boolean isExistsPhoneNumberAndEmail(AuthCodeVerificationRequestDto.CreatePasswordAuthCodeVerificationRequest authCodeVerificationRequestDto) {
+        return usersRepository.existsByUserPhoneNumberAndUserNameAndUserEmail(authCodeVerificationRequestDto.phoneNumber(),authCodeVerificationRequestDto.userName(),authCodeVerificationRequestDto.userEmail());
+    }
+
     /**
      * 인증 관련
      */
     private Map<String, String> authCodeStore = new HashMap<>();
+    private Map<String, Instant> authCodeTimeStore = new HashMap<>();
+
     private Map<String, String> passwordTokenStore = new HashMap<>();
+    private Map<String, Instant> passwordTokenTimeStore = new HashMap<>();
 
     /**
      * 인증 코드 생성
@@ -117,6 +153,8 @@ public class UserService {
         // 6자리 인증 코드 생성
         String authCode = String.format("%06d", new Random().nextInt(999999));
         authCodeStore.put(phoneNumber, authCode);
+        Instant now = Instant.now();
+        authCodeTimeStore.put(phoneNumber, now);
         log.info("인증번호: {}", authCode);
         return authCode;
     }
@@ -127,17 +165,30 @@ public class UserService {
      * @param authCode
      */
     public boolean verifyAuthCode(String phoneNumber, String authCode) {
-        String key = "{\"phoneNumber\":\"" + phoneNumber + "\"}";
-        String storedAuthCode = authCodeStore.get(key);
+        String storedAuthCode = authCodeStore.get(phoneNumber);
+        Instant now = Instant.now();
+        Instant start = authCodeTimeStore.get(phoneNumber);
+        if(start==null){
+            log.error("인증번호 확인 실패: 인증번호 만료");
+            throw new AuthExpireException("인증번호 만료");
+        }
+        Duration duration = Duration.between(start, now);
+        long seconds = duration.toSeconds();
+        if(seconds>=300){
+            authCodeTimeStore.remove(phoneNumber);
+            log.error("인증번호 확인 실패: 인증번호 만료");
+            throw new AuthExpireException("인증번호 만료");
+        }
 
         // 인증번호가 동일하면 authCodeStore에서 지우고 true 반환
         if (authCode.equals(storedAuthCode)) {
             authCodeStore.remove(phoneNumber);
+            authCodeTimeStore.remove(phoneNumber);
             log.info("인증번호 확인 성공");
             return true;
         } else {
             log.error("인증번호 확인 실패: 인증번호 불일치");
-            return false;
+            throw new AuthInvalidException("인증번호 불일치");
         }
     }
     public static String generateRandomStr(int length, boolean isUpperCase) {
@@ -156,6 +207,9 @@ public class UserService {
             log.info("토큰 할당:"+token);
             log.info("토큰 할당:"+phoneNumber);
             passwordTokenStore.put(token,phoneNumber);
+            passwordTokenTimeStore.put(token,Instant.now());
+            Instant now = Instant.now();
+            authCodeTimeStore.put(token, now);
             log.info("토큰 할당 데이터:"+passwordTokenStore.get(token));
         }
         catch(Exception e) {
@@ -167,6 +221,16 @@ public class UserService {
         String token = changePasswordDto.getToken();
         String phoneNumber = changePasswordDto.getPhoneNumber();
         String storedPhoneNumber = passwordTokenStore.get(token);
+        Instant now = Instant.now();
+        Instant start = passwordTokenTimeStore.get(token);
+
+        Duration duration = Duration.between(start, now);
+        long seconds = duration.toSeconds();
+        if(seconds>=300){
+            passwordTokenTimeStore.remove(phoneNumber);
+            log.error("토큰 확인 실패: 토큰 만료");
+            throw new AuthExpireException("토큰 만료");
+        }
         if(storedPhoneNumber==null||storedPhoneNumber.isEmpty()){
             log.info("토근 인증 정보가 없습니다");
             return false;
@@ -202,5 +266,53 @@ public class UserService {
             return userName;
         }
         return null;
+    }
+
+    /**
+     * 토큰으로 유저 정보, 펫 정보 조회
+     * @param token
+     * @return
+     */
+    public FetchUserResponse validateToken(String token){
+        User user;
+        Pet pet;
+        if(jwtTokenProvider.validateToken(token)){
+            Long userId = Long.parseLong(jwtTokenProvider.getUserIdFromToken(token));
+            String loginType = "NoAPI";
+            // 데이터베이스에서 사용자 정보 조회
+            user = usersRepository.findById(userId)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            if(!Optional.empty().equals(kakaoApiUserLoginRepository.findById(userId))){
+                loginType = "Kakao";
+            }
+            else if(!Optional.empty().equals(naverApiUserLoginRepository.findById(userId))){
+                loginType = "Naver";
+            }
+
+            pet = petRepository.findByPetId(user.getPet().getPetId());
+
+            return FetchUserResponse.builder()
+                    .userId(user.getUserId())
+                    .pet(
+                            PetDto.builder()
+                            .petBirth(pet.getPetBirth())
+                            .petGender(pet.getPetGender())
+                            .petId(pet.getPetId())
+                            .petName(pet.getPetName())
+                            .petBreed(pet.getPetBreed())
+                            .petSize(pet.getPetSize())
+                        .build()
+                    )
+                    .userName(user.getUserName())
+                    .userPhoneNumber(user.getUserPhoneNumber())
+                    .userEmail(user.getUserEmail())
+                    .reservations(user.getReservations())
+                    .loginType(loginType)
+                    .build();
+        }
+        else{
+            throw new UsernameNotFoundException("Invalid token");
+        }
     }
 }
