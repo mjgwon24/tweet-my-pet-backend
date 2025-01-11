@@ -7,6 +7,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.geo.Point;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import tweet_my_pet.tweet_my_pet_backend.dto.MapResponseDto;
 import tweet_my_pet.tweet_my_pet_backend.dto.StoreDto.FetchStoresResponse;
 import tweet_my_pet.tweet_my_pet_backend.dto.StoreDto.FetchStoresResponse.FetchedStore;
 import tweet_my_pet.tweet_my_pet_backend.dto.StoreDto.CreateStoreRequest;
@@ -20,6 +23,7 @@ import tweet_my_pet.tweet_my_pet_backend.repository.StoreRepository;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static tweet_my_pet.tweet_my_pet_backend.util.PointUtil.calculateDistanceSpacing;
 import static tweet_my_pet.tweet_my_pet_backend.util.StoreFeatureUtil.storeFeatureListToString;
@@ -27,6 +31,7 @@ import static tweet_my_pet.tweet_my_pet_backend.util.StoreFeatureUtil.storeFeatu
 @RequiredArgsConstructor
 @Service
 public class StoreService {
+    private static final Logger logger = LoggerFactory.getLogger(StoreService.class);
     private final StoreRepository storeRepository;
 
     // 매장 추가
@@ -148,5 +153,80 @@ public class StoreService {
     }
 
 
+    public List<MapResponseDto> getAllStoreCoordinatesAndIds() {
+        // 데이터베이스에서 모든 Store 객체를 가져옵니다.
+        List<Store> stores = storeRepository.findAll();
+
+        // 변환된 StoreDto 목록 로깅
+        List<MapResponseDto> storeDtos = stores.stream()
+                .map(store -> {
+                    // 각 feature 값 로그 출력
+                    logger.info("Processing Store: id={}, name={}, location={}, latitude={}, longitude={}, category={}, rating={}, reviewCount={}",
+                            store.getId(),
+                            store.getStoreName(),
+                            store.getStoreLocation(), // location 로깅
+                            store.getStorePoint().getY(), // Latitude
+                            store.getStorePoint().getX(), // Longitude
+                            store.getStoreCategory(),
+                            store.getRating(),
+                            store.getReviewCount()
+                    );
+                    if (store.getStoreFeature() != null) {
+                        logger.info("Features for Store id={}: isSmallDog={}, isMediumDog={}, isLargeDog={}, isParking={}, isDogPark={}, isDogSwimmingPool={}, isInternet={}, isBarbecue={}, isToiletDivision={}, isFoodPacking={}, isWaitingPlace={}, isKidSeat={}",
+                                store.getId(),
+                                store.getStoreFeature().getIsSmallDog(),
+                                store.getStoreFeature().getIsMediumDog(),
+                                store.getStoreFeature().getIsLargeDog(),
+                                store.getStoreFeature().getIsParking(),
+                                store.getStoreFeature().getIsDogPark(),
+                                store.getStoreFeature().getIsDogSwimmingPool(),
+                                store.getStoreFeature().getIsInternet(),
+                                store.getStoreFeature().getIsBarbecue(),
+                                store.getStoreFeature().getIsToiletDivision(),
+                                store.getStoreFeature().getIsFoodPacking(),
+                                store.getStoreFeature().getIsWaitingPlace(),
+                                store.getStoreFeature().getIsKidSeat()
+                        );
+                    } else {
+                        logger.info("No features available for Store id={}", store.getId());
+                    }
+
+                    return MapResponseDto.fromCoordinatesAndId(
+                            store.getId(),
+                            store.getStoreName(),
+                            store.getStoreLocation(), // location 추가
+                            store.getStorePoint().getY(), // Latitude
+                            store.getStorePoint().getX(), // Longitude
+                            store.getStoreCategory(),
+                            store.getRating(),
+                            store.getReviewCount(),
+                            store.getThumbPath(),
+
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsSmallDog()),
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsMediumDog()),
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsLargeDog()),
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsParking()),
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsDogPark()),
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsDogSwimmingPool()),
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsInternet()),
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsBarbecue()),
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsToiletDivision()),
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsFoodPacking()),
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsWaitingPlace()),
+                            store.getStoreFeature() != null && Boolean.TRUE.equals(store.getStoreFeature().getIsKidSeat())
+                    );
+                })
+                .collect(Collectors.toList());
+
+        // 최종 변환 결과 로깅
+        logger.info("Transformed StoreDtos: {}", storeDtos);
+
+
+        return storeDtos;
+    }
 }
+
+
+
+
 
