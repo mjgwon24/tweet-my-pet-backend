@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tweet_my_pet.tweet_my_pet_backend.dto.MapResponseDto;
 import tweet_my_pet.tweet_my_pet_backend.dto.StoreDto.FetchStoresRequest;
 import tweet_my_pet.tweet_my_pet_backend.dto.StoreDto.FetchStoresResponse;
 import tweet_my_pet.tweet_my_pet_backend.dto.StoreDto.CreateStoreRequest;
@@ -12,6 +13,8 @@ import tweet_my_pet.tweet_my_pet_backend.dto.StoreDto.FetchStoreResponse;
 import tweet_my_pet.tweet_my_pet_backend.dto.common.ResponseDto;
 import tweet_my_pet.tweet_my_pet_backend.entity.enums.StoreCategory;
 import tweet_my_pet.tweet_my_pet_backend.service.StoreService;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -51,6 +54,17 @@ public class StoreRestController {
                 new ResponseDto<>(ResponseDto.Status.SUCCESS, "매장 목록 조회 성공", fetchStoreResponse),
                 HttpStatus.OK
         );
+    }
+
+    @GetMapping("/coordinates")
+    public ResponseEntity<ResponseDto<List<MapResponseDto>>> getAllStoreCoordinatesAndIds() {
+        List<MapResponseDto> storeDtos = storeService.getAllStoreCoordinatesAndIds();
+
+        return new ResponseEntity<>(
+                new ResponseDto<>(ResponseDto.Status.SUCCESS, "매장 좌표 및 ID 조회 성공", storeDtos),
+                HttpStatus.OK
+        );
+
     }
 }
 
