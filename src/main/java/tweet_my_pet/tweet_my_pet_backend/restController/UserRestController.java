@@ -15,6 +15,7 @@ import tweet_my_pet.tweet_my_pet_backend.dto.AuthCodeVerificationRequestDto;
 import tweet_my_pet.tweet_my_pet_backend.dto.ChangePasswordDto;
 import tweet_my_pet.tweet_my_pet_backend.dto.LoginRequest;
 import tweet_my_pet.tweet_my_pet_backend.dto.SignupRequestDto;
+import tweet_my_pet.tweet_my_pet_backend.dto.UserDto.FetchUserResponse;
 import tweet_my_pet.tweet_my_pet_backend.entity.NoApiUserLogin;
 import tweet_my_pet.tweet_my_pet_backend.entity.User;
 import tweet_my_pet.tweet_my_pet_backend.exception.DuplicateResourceException;
@@ -209,6 +210,35 @@ public class UserRestController {
                 return new ResponseEntity<>("인증 실패", HttpStatus.BAD_REQUEST);
         } else {
             return new ResponseEntity<>("인증 실패", HttpStatus.BAD_REQUEST);
+    @Tag(name = "auth", description = "유저 정보 조회")
+    @Operation(summary = "유저 정보 조회")
+    @GetMapping("/user/profile")
+    public ResponseEntity<ResponseDto<FetchUserResponse>> getUserProfile(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+
+            // Authorization 헤더에서 토큰 추출
+            String token = authorizationHeader.replace("Bearer ", "");
+            FetchUserResponse userResponse = userService.validateToken(token);
+            // 토큰 검증 및 사용자 ID 추출
+            if (!jwtTokenProvider.validateToken(token)) {
+                return new ResponseEntity<>(
+                        new ResponseDto<>(ResponseDto.Status.FAILURE, "유저 정보 조회 실패",null),
+                        HttpStatus.UNAUTHORIZED
+                );
+            }
+
+
+            // 사용자 정보 반환
+            return new ResponseEntity<>(
+                    new ResponseDto<>(ResponseDto.Status.SUCCESS, "유저 정보 조회 성공",userResponse),
+                    HttpStatus.OK
+            );
+        } catch (Exception e) {
+            log.error("로그인 토큰 인증 실패: {}", e.getMessage());
+            return new ResponseEntity<>(
+                    new ResponseDto<>(ResponseDto.Status.FAILURE, "유저 정보 조회 실패:"+e.getMessage().toString(),null),
+                    HttpStatus.UNAUTHORIZED
+            );
         }
     }
 
